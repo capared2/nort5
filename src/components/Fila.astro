@@ -1,0 +1,47 @@
+---
+import type { Pelicula, Tarjeta } from "../lib/types";
+import TarjetaPelicula from "./Tarjeta.astro";
+
+interface Props {
+  titulo: string;
+  peliculas: (Tarjeta | Pelicula)[];
+  enlace?: string;
+  numerar?: boolean;
+  clase?: string;
+}
+
+const { titulo, peliculas, enlace, numerar = false, clase = "" } = Astro.props;
+---
+
+{
+  peliculas.length > 0 && (
+    <section class:list={["mt-10", clase]}>
+      <header class="mb-3 flex items-end justify-between gap-3">
+        <h2 class="font-display text-xl font-bold tracking-tight sm:text-2xl">
+          <span class="mr-2 inline-block h-5 w-1 translate-y-0.5 rounded-full bg-[var(--color-marca)]" />
+          {titulo}
+        </h2>
+        {enlace && (
+          <a
+            href={enlace}
+            class="shrink-0 text-sm font-semibold text-[var(--color-tinta-suave)] hover:text-[var(--color-marca)]"
+          >
+            Ver todas <span aria-hidden="true">›</span>
+          </a>
+        )}
+      </header>
+
+      <!-- Se arrastra con el dedo en móvil y con la rueda en escritorio; sin
+           flechas, que en una fila de carátulas estorban más de lo que ayudan. -->
+      <div class="carrusel -mx-5 px-5">
+        {peliculas.map((pelicula, indice) => (
+          <TarjetaPelicula
+            pelicula={pelicula}
+            variante="fila"
+            posicion={numerar ? indice + 1 : undefined}
+          />
+        ))}
+      </div>
+    </section>
+  )
+}

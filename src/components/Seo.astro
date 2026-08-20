@@ -1,0 +1,87 @@
+---
+import { SITIO, absoluta } from "../lib/sitio";
+import { grafo } from "../lib/seo";
+
+interface Props {
+  titulo: string;
+  descripcion: string;
+  /** Ruta canónica del sitio; se convierte a absoluta. */
+  canonical: string;
+  imagen?: string | null;
+  tipo?: "website" | "video.movie";
+  /** Datos que solo tiene una ficha, para las etiquetas og:video. */
+  estreno?: string | null;
+  duracionMinutos?: number | null;
+  etiquetas?: string[];
+  noindex?: boolean;
+  jsonLd?: object[];
+  anterior?: string | null;
+  siguiente?: string | null;
+}
+
+const {
+  titulo,
+  descripcion,
+  canonical,
+  imagen = null,
+  tipo = "website",
+  estreno = null,
+  duracionMinutos = null,
+  etiquetas = [],
+  noindex = false,
+  jsonLd = [],
+  anterior = null,
+  siguiente = null,
+} = Astro.props;
+
+const url = absoluta(canonical);
+const portada = imagen ?? absoluta("/og.svg");
+
+// Sin límites al fragmento ni a la imagen: es lo que hace que el resultado
+// ocupe más espacio y se lleve más clics.
+const robots = noindex
+  ? "noindex, follow"
+  : "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1";
+---
+
+<title>{titulo}</title>
+<meta name="description" content={descripcion} />
+<link rel="canonical" href={url} />
+
+<meta name="robots" content={robots} />
+<meta name="googlebot" content={robots} />
+
+{anterior && <link rel="prev" href={absoluta(anterior)} />}
+{siguiente && <link rel="next" href={absoluta(siguiente)} />}
+
+<meta property="og:type" content={tipo} />
+<meta property="og:site_name" content={SITIO.nombre} />
+<meta property="og:locale" content={SITIO.locale} />
+<meta property="og:title" content={titulo} />
+<meta property="og:description" content={descripcion} />
+<meta property="og:url" content={url} />
+<meta property="og:image" content={portada} />
+<meta property="og:image:alt" content={titulo} />
+
+{tipo === "video.movie" && estreno && <meta property="video:release_date" content={estreno} />}
+{
+  tipo === "video.movie" && duracionMinutos && (
+    <meta property="video:duration" content={String(duracionMinutos * 60)} />
+  )
+}
+{tipo === "video.movie" && etiquetas.slice(0, 10).map((etiqueta) => <meta property="video:tag" content={etiqueta} />)}
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={titulo} />
+<meta name="twitter:description" content={descripcion} />
+<meta name="twitter:image" content={portada} />
+
+<link
+  rel="alternate"
+  type="application/rss+xml"
+  title={`${SITIO.nombre} · novedades`}
+  href={absoluta("/rss.xml")}
+/>
+<link rel="sitemap" type="application/xml" href={absoluta("/sitemap.xml")} />
+
+{jsonLd.length > 0 && <script type="application/ld+json" is:inline set:html={grafo(jsonLd)} />}

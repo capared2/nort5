@@ -1,0 +1,101 @@
+---
+import "../styles/global.css";
+import Cabecera from "../components/Cabecera.astro";
+import Pie from "../components/Pie.astro";
+import Seo from "../components/Seo.astro";
+import type { Indice } from "../lib/types";
+import { SITIO } from "../lib/sitio";
+
+interface Props {
+  titulo: string;
+  descripcion?: string;
+  /** Ruta canónica de esta página. */
+  canonical: string;
+  indice: Indice | null;
+  /** Segundos que el edge de Cloudflare puede reutilizar la respuesta. */
+  cache?: number;
+  generoActivo?: string;
+  imagen?: string | null;
+  tipo?: "website" | "video.movie";
+  estreno?: string | null;
+  duracionMinutos?: number | null;
+  etiquetas?: string[];
+  noindex?: boolean;
+  jsonLd?: object[];
+  anterior?: string | null;
+  siguiente?: string | null;
+  /** El contenido llega hasta el borde: para las fichas con cartel a sangre. */
+  ancho?: boolean;
+}
+
+const {
+  titulo,
+  descripcion = SITIO.descripcion,
+  canonical,
+  indice,
+  cache = 3600,
+  generoActivo,
+  ancho = false,
+  ...seo
+} = Astro.props;
+
+// El catálogo se rehace cada pocas horas: servir desde el edge y revalidar en
+// segundo plano mantiene el sitio rápido sin quedarse obsoleto.
+Astro.response.headers.set(
+  "Cache-Control",
+  `public, max-age=300, s-maxage=${cache}, stale-while-revalidate=86400`,
+);
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <Seo titulo={titulo} descripcion={descripcion} canonical={canonical} {...seo} />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="dns-prefetch" href="https://m.media-amazon.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <meta name="theme-color" content="#0b0d12" />
+
+    <script is:inline>
+      // Las carátulas las sirve Amazon: si alguna desaparece, se oculta en vez
+      // de enseñar el icono de imagen rota.
+      addEventListener(
+        "error",
+        (evento) => {
+          if (evento.target instanceof HTMLImageElement) evento.target.style.visibility = "hidden";
+        },
+        true,
+      );
+
+      // El tema se aplica antes de pintar para que no haya destello. Se parte
+      // de lo oscuro, que es como se ve el cine y como está pensada la paleta:
+      // el claro solo llega si se pide con el botón de la cabecera.
+      document.documentElement.classList.toggle("claro", localStorage.getItem("tema") === "claro");
+    </script>
+  </head>
+  <body class="flex min-h-screen flex-col">
+    <a
+      href="#contenido"
+      class="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:m-2 focus:rounded focus:bg-[var(--color-marca)] focus:px-4 focus:py-2 focus:text-[#10131a]"
+    >
+      Ir al contenido
+    </a>
+
+    <Cabecera indice={indice} generoActivo={generoActivo} />
+
+    <main id="contenido" class:list={["w-full flex-1", ancho ? "" : "contenedor py-8"]}>
+      <slot />
+    </main>
+
+    <Pie indice={indice} />
+  </body>
+</html>

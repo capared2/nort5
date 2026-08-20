@@ -1,0 +1,296 @@
+---
+import Base from "../../layouts/Base.astro";
+import Estrella from "../../components/Estrella.astro";
+import Fila from "../../components/Fila.astro";
+import { obtenerIndice, obtenerParecidas, obtenerPelicula } from "../../lib/data";
+import {
+  caratula,
+  claveGenero,
+  colorGenero,
+  colorMetascore,
+  dinero,
+  duracion,
+  enlaceGenero,
+  fecha,
+  nombreGenero,
+  nombreTipo,
+  numero,
+} from "../../lib/format";
+import { SITIO } from "../../lib/sitio";
+import { grafoPelicula } from "../../lib/seo";
+
+const { id } = Astro.params;
+
+const pelicula = await obtenerPelicula(id ?? "");
+if (!pelicula) {
+  return new Response(null, { status: 404, statusText: "Película no encontrada" });
+}
+
+const [indice, parecidas] = await Promise.all([
+  obtenerIndice(),
+  obtenerParecidas(pelicula),
+]);
+
+const cartel = caratula(pelicula.poster, 500);
+// Si el archivo trajo fotogramas, el primero que no sea el cartel hace de
+// fondo; si no, el propio cartel ampliado.
+const fondo = caratula(
+  pelicula.images.find((imagen) => imagen.url !== pelicula.poster)?.url ?? pelicula.poster,
+  900,
+);
+
+const generoPrincipal = pelicula.genres[0] ?? pelicula.category;
+const equipo = [
+  { papel: "Dirección", gente: pelicula.directors },
+  { papel: "Guion", gente: pelicula.writers },
+].filter((bloque) => bloque.gente.length > 0);
+
+const ficha = [
+  { campo: "Estreno", valor: fecha(pelicula.release_date) },
+  { campo: "Duración", valor: duracion(pelicula.runtime_minutes) },
+  { campo: "País", valor: pelicula.countries.join(", ") },
+  { campo: "Idioma", valor: pelicula.languages.join(", ") },
+  { campo: "Productora", valor: pelicula.companies.join(", ") },
+  { campo: "Presupuesto", valor: dinero(pelicula.budget) },
+  { campo: "Recaudación", valor: dinero(pelicula.gross_worldwide) },
+].filter((linea) => linea.valor);
+
+const titulo = pelicula.year ? `${pelicula.title} (${pelicula.year})` : pelicula.title;
+const descripcion =
+  pelicula.plot ||
+  `Ficha de ${titulo}: nota, reparto, duración y todo lo que hay que saber antes de verla.`;
+---
+
+<Base
+  titulo={`${titulo} · ${SITIO.nombre}`}
+  descripcion={descripcion.slice(0, 300)}
+  canonical={`/pelicula/${pelicula.id}`}
+  indice={indice}
+  generoActivo={claveGenero(generoPrincipal)}
+  imagen={pelicula.poster}
+  tipo="video.movie"
+  estreno={pelicula.release_date}
+  duracionMinutos={pelicula.runtime_minutes}
+  etiquetas={pelicula.keywords}
+  cache={7200}
+  jsonLd={grafoPelicula(pelicula)}
+>
+  <article>
+    <div class="relative isolate -mx-5 overflow-hidden px-5 py-8 sm:rounded-2xl sm:px-8">
+      {
+        fondo && (
+          <img
+            src={fondo}
+            alt=""
+            aria-hidden="true"
+            class="absolute inset-0 -z-10 size-full scale-110 object-cover object-top blur-2xl"
+          />
+        )
+      }
+      <div class="absolute inset-0 -z-10 velo"></div>
+
+      <div class="flex flex-col gap-7 sm:flex-row sm:gap-9">
+        <div class="mx-auto w-40 shrink-0 sm:mx-0 sm:w-56">
+          {
+            cartel ? (
+              <img
+                src={cartel}
+                alt={`Cartel de ${pelicula.title}`}
+                class="aspect-2/3 w-full rounded-xl object-cover shadow-2xl ring-1 ring-white/10"
+                fetchpriority="high"
+              />
+            ) : (
+              <div class="aspect-2/3 w-full rounded-xl bg-[var(--color-lienzo-alt)]" />
+            )
+          }
+        </div>
+
+        <div class="min-w-0 flex-1">
+          <p class="text-xs font-bold uppercase tracking-[0.18em] text-[var(--color-marca)]">
+            {nombreTipo(pelicula.type)}
+          </p>
+          <h1 class="mt-1.5 font-display text-3xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl">
+            {pelicula.title}
+          </h1>
+          {
+            pelicula.original_title !== pelicula.title && (
+              <p class="mt-1 text-sm text-[var(--color-tinta-tenue)]">
+                Título original: <em>{pelicula.original_title}</em>
+              </p>
+            )
+          }
+
+          <p class="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-[var(--color-tinta-suave)]">
+            <Estrella valor={pelicula.rating} votos={pelicula.votes} tamano="grande" />
+            {
+              pelicula.metascore !== null && pelicula.metascore !== undefined && (
+                <span class="inline-flex items-center gap-1.5">
+                  <span
+                    class="grid size-6 place-items-center rounded text-xs font-bold text-white"
+                    style={`background:${colorMetascore(pelicula.metascore)}`}
+                  >
+                    {pelicula.metascore}
+                  </span>
+                  <span class="text-xs">Metascore</span>
+                </span>
+              )
+            }
+            {pelicula.year && <span>{pelicula.year}</span>}
+            {pelicula.runtime_minutes ? <span>{duracion(pelicula.runtime_minutes)}</span> : null}
+            {
+              pelicula.certificate && (
+                <span class="rounded border border-[var(--color-linea)] px-1.5 py-0.5 text-xs">
+                  {pelicula.certificate}
+                </span>
+              )
+            }
+          </p>
+
+          {
+            pelicula.genres.length > 0 && (
+              <p class="mt-4 flex flex-wrap gap-2">
+                {pelicula.genres.map((genero) => (
+                  <a
+                    href={enlaceGenero(claveGenero(genero))}
+                    style={`--acento:${colorGenero(claveGenero(genero))}`}
+                    class="rounded-full border border-[var(--color-linea)] bg-[var(--color-fondo)]/50 px-3 py-1 text-xs font-semibold hover:border-[var(--acento)] hover:text-[var(--acento)]"
+                  >
+                    {nombreGenero(genero)}
+                  </a>
+                ))}
+              </p>
+            )
+          }
+
+          {
+            pelicula.tagline && (
+              <p class="mt-5 border-l-2 border-[var(--color-marca)] pl-3 font-display text-lg italic text-[var(--color-tinta-suave)]">
+                {pelicula.tagline}
+              </p>
+            )
+          }
+
+          {
+            pelicula.plot && (
+              <p class="sinopsis mt-4 max-w-2xl text-[var(--color-tinta)]">{pelicula.plot}</p>
+            )
+          }
+
+          {
+            equipo.length > 0 && (
+              <dl class="mt-5 space-y-1.5 text-sm">
+                {equipo.map((bloque) => (
+                  <div class="flex flex-wrap gap-x-2">
+                    <dt class="font-semibold text-[var(--color-tinta-tenue)]">{bloque.papel}:</dt>
+                    <dd>{bloque.gente.map((quien) => quien.name).join(", ")}</dd>
+                  </div>
+                ))}
+              </dl>
+            )
+          }
+
+          <p class="mt-6 flex flex-wrap gap-3">
+            {
+              pelicula.trailer && (
+                <a
+                  href={pelicula.trailer}
+                  rel="noopener nofollow"
+                  target="_blank"
+                  class="inline-flex items-center gap-2 rounded-full bg-[var(--color-marca)] px-5 py-2.5 text-sm font-bold text-[#10131a] hover:bg-[var(--color-marca-oscuro)]"
+                >
+                  <svg class="size-4 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M8 5.5v13l11-6.5-11-6.5z" />
+                  </svg>
+                  Ver el tráiler
+                </a>
+              )
+            }
+            <a
+              href={pelicula.url}
+              rel="noopener nofollow"
+              target="_blank"
+              class="inline-flex items-center gap-2 rounded-full border border-[var(--color-linea)] px-5 py-2.5 text-sm font-semibold hover:border-[var(--color-marca)] hover:text-[var(--color-marca)]"
+            >
+              Ficha en IMDb
+              <span aria-hidden="true">↗</span>
+            </a>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    {
+      pelicula.cast.length > 0 && (
+        <section class="mt-12">
+          <h2 class="mb-4 font-display text-xl font-bold tracking-tight sm:text-2xl">
+            <span class="mr-2 inline-block h-5 w-1 translate-y-0.5 rounded-full bg-[var(--color-marca)]" />
+            Reparto
+          </h2>
+          <ul class="carrusel -mx-5 px-5">
+            {pelicula.cast.map((quien) => (
+              <li class="w-28 shrink-0 snap-start text-center">
+                <div class="mx-auto size-24 overflow-hidden rounded-full bg-[var(--color-lienzo-alt)] ring-1 ring-[var(--color-linea)]">
+                  {quien.image ? (
+                    <img
+                      src={caratula(quien.image, 160)!}
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                      class="size-full object-cover"
+                    />
+                  ) : (
+                    <span class="grid size-full place-items-center font-display text-2xl text-[var(--color-tinta-tenue)]">
+                      {quien.name.charAt(0)}
+                    </span>
+                  )}
+                </div>
+                <p class="mt-2 text-sm font-semibold leading-tight">{quien.name}</p>
+                {quien.character && (
+                  <p class="lineas-2 mt-0.5 text-xs text-[var(--color-tinta-tenue)]">{quien.character}</p>
+                )}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+
+    {
+      ficha.length > 0 && (
+        <section class="mt-12">
+          <h2 class="mb-4 font-display text-xl font-bold tracking-tight sm:text-2xl">
+            <span class="mr-2 inline-block h-5 w-1 translate-y-0.5 rounded-full bg-[var(--color-marca)]" />
+            Detalles
+          </h2>
+          <dl class="grid gap-x-8 gap-y-3 rounded-xl border border-[var(--color-linea)] bg-[var(--color-lienzo)] p-5 sm:grid-cols-2">
+            {ficha.map((linea) => (
+              <div class="flex flex-wrap gap-x-2 border-b border-[var(--color-linea)] pb-2 text-sm last:border-0">
+                <dt class="font-semibold text-[var(--color-tinta-tenue)]">{linea.campo}</dt>
+                <dd class="ml-auto text-right">{linea.valor}</dd>
+              </div>
+            ))}
+          </dl>
+
+          {
+            pelicula.keywords.length > 0 && (
+              <p class="mt-4 flex flex-wrap gap-1.5">
+                {pelicula.keywords.slice(0, 12).map((etiqueta) => (
+                  <span class="rounded-full bg-[var(--color-lienzo-alt)] px-2.5 py-1 text-xs text-[var(--color-tinta-suave)]">
+                    {etiqueta}
+                  </span>
+                ))}
+              </p>
+            )
+          }
+        </section>
+      )
+    }
+
+    <Fila titulo="Si te gustó, sigue por aquí" peliculas={parecidas} enlace={enlaceGenero(claveGenero(generoPrincipal))} />
+
+    <p class="mt-10 text-xs text-[var(--color-tinta-tenue)]">
+      Ficha recogida de IMDb{pelicula.scraped_at && ` el ${fecha(pelicula.scraped_at)}`}.
+      {pelicula.votes ? ` La nota y los ${numero(pelicula.votes)} votos son suyos.` : ""}
+    </p>
+  </article>
+</Base>

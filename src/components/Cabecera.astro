@@ -1,0 +1,187 @@
+---
+import type { Indice } from "../lib/types";
+import { colorGenero, enlaceGenero, nombreGenero } from "../lib/format";
+import { SITIO } from "../lib/sitio";
+import Logo from "./Logo.astro";
+
+interface Props {
+  indice: Indice | null;
+  generoActivo?: string;
+}
+
+const { indice, generoActivo } = Astro.props;
+
+// Los géneros con más películas encabezan la barra; el resto queda a un toque
+// en el desplegable.
+const generos = [...(indice?.genres ?? [])]
+  .filter((genero) => genero.tagged > 0 || genero.titles > 0)
+  .sort((a, b) => b.tagged - a.tagged || b.titles - a.titles);
+
+const destacados = generos.slice(0, 10);
+---
+
+<header class="sticky top-0 z-30 border-b border-[var(--color-linea)] bg-[var(--color-fondo)]/95 backdrop-blur">
+  <div class="contenedor flex flex-wrap items-center gap-x-3 gap-y-2 py-3">
+    <a href="/" class="flex shrink-0 items-center gap-2.5" aria-label={`${SITIO.nombre}, ir al inicio`}>
+      <Logo clase="size-9 text-[var(--color-marca)]" />
+      <span class="flex flex-col">
+        <strong class="font-display text-2xl font-extrabold leading-none tracking-tight">
+          {SITIO.nombre}
+        </strong>
+        <!-- En móvil el lema se guarda: ensanchaba tanto la marca que el botón
+             de tema se descolgaba a una línea para él solo. -->
+        <small class="mt-1 hidden text-[0.6rem] uppercase leading-none tracking-[0.18em] text-[var(--color-tinta-tenue)] sm:block">
+          {SITIO.lema}
+        </small>
+      </span>
+    </a>
+
+    <!-- En móvil el buscador se lleva su propia fila: apretado en la primera
+         empujaba el botón de tema fuera de la pantalla. -->
+    <form
+      action="/buscar"
+      method="get"
+      role="search"
+      class="order-last w-full basis-full sm:order-none sm:ml-auto sm:w-auto sm:max-w-md sm:flex-1 sm:basis-auto"
+    >
+      <label for="q" class="sr-only">Buscar películas</label>
+      <div class="relative">
+        <svg
+          class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 stroke-[var(--color-tinta-tenue)]"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke-width="2"
+          stroke-linecap="round"
+          aria-hidden="true"
+        >
+          <circle cx="11" cy="11" r="7"></circle>
+          <path d="M20 20l-3.5-3.5"></path>
+        </svg>
+        <input
+          id="q"
+          name="q"
+          type="search"
+          placeholder="Buscar una película…"
+          autocomplete="off"
+          class="w-full rounded-full border border-[var(--color-linea)] bg-[var(--color-lienzo)] py-2 pl-9 pr-4 text-sm outline-none placeholder:text-[var(--color-tinta-tenue)] focus:border-[var(--color-marca)]"
+        />
+      </div>
+    </form>
+
+    <details class="relative ml-auto sm:ml-0" data-menu>
+      <summary
+        class="flex cursor-pointer list-none items-center gap-1.5 rounded-full border border-[var(--color-linea)] px-3.5 py-2 text-sm font-semibold hover:border-[var(--color-marca)] hover:text-[var(--color-marca)] [&::-webkit-details-marker]:hidden"
+      >
+        Géneros
+        <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+          <path d="M6 9l6 6 6-6"></path>
+        </svg>
+      </summary>
+      <div
+        class="absolute right-0 z-40 mt-2 grid max-h-[70vh] w-64 grid-cols-2 gap-1 overflow-y-auto rounded-xl border border-[var(--color-linea)] bg-[var(--color-lienzo)] p-2 shadow-2xl"
+      >
+        {
+          generos.map((genero) => (
+            <a
+              href={enlaceGenero(genero.genre)}
+              class="truncate rounded-lg px-2.5 py-1.5 text-sm hover:bg-[var(--color-lienzo-alt)] hover:text-[var(--color-marca)]"
+            >
+              {genero.name || nombreGenero(genero.genre)}
+            </a>
+          ))
+        }
+        <a
+          href="/generos"
+          class="col-span-2 mt-1 rounded-lg bg-[var(--color-lienzo-alt)] px-2.5 py-1.5 text-center text-sm font-semibold hover:text-[var(--color-marca)]"
+        >
+          Todos los géneros
+        </a>
+      </div>
+    </details>
+
+    <button
+      type="button"
+      id="cambiar-tema"
+      aria-label="Cambiar entre tema claro y oscuro"
+      class="grid size-9 shrink-0 place-items-center rounded-full border border-[var(--color-linea)] text-[var(--color-tinta-suave)] hover:border-[var(--color-marca)] hover:text-[var(--color-marca)]"
+    >
+      <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+        <path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"></path>
+      </svg>
+    </button>
+  </div>
+
+  {
+    destacados.length > 0 && (
+      <nav
+        aria-label="Géneros"
+        data-generos
+        class="contenedor carrusel-oculto flex snap-x snap-mandatory gap-1.5 overflow-x-auto pb-2 text-sm"
+      >
+        <a
+          href="/"
+          aria-current={!generoActivo ? "page" : undefined}
+          class:list={[
+            "shrink-0 scroll-mx-5 snap-start rounded-full px-3.5 py-1.5 font-semibold",
+            !generoActivo
+              ? "bg-[var(--color-marca)] text-[#10131a]"
+              : "text-[var(--color-tinta-suave)] hover:bg-[var(--color-lienzo-alt)]",
+          ]}
+        >
+          Inicio
+        </a>
+        <a
+          href="/top"
+          aria-current={generoActivo === "top" ? "page" : undefined}
+          class:list={[
+            "shrink-0 scroll-mx-5 snap-start rounded-full px-3.5 py-1.5 font-semibold",
+            generoActivo === "top"
+              ? "bg-[var(--color-marca)] text-[#10131a]"
+              : "text-[var(--color-tinta-suave)] hover:bg-[var(--color-lienzo-alt)]",
+          ]}
+        >
+          Mejor valoradas
+        </a>
+        {destacados.map((genero) => (
+          <a
+            href={enlaceGenero(genero.genre)}
+            aria-current={generoActivo === genero.genre ? "page" : undefined}
+            style={generoActivo === genero.genre ? undefined : `--acento:${colorGenero(genero.genre)}`}
+            class:list={[
+              "shrink-0 scroll-mx-5 snap-start rounded-full px-3.5 py-1.5 font-semibold",
+              generoActivo === genero.genre
+                ? "bg-[var(--color-marca)] text-[#10131a]"
+                : "text-[var(--color-tinta-suave)] hover:bg-[var(--color-lienzo-alt)] hover:text-[var(--acento)]",
+            ]}
+          >
+            {genero.name || nombreGenero(genero.genre)}
+          </a>
+        ))}
+      </nav>
+    )
+  }
+</header>
+
+<script is:inline>
+  // El género en el que estás puede quedar fuera de la parte visible de la
+  // barra: se centra solo al cargar, sin arrastrar la página.
+  (function () {
+    var barra = document.querySelector("[data-generos]");
+    var activo = barra && barra.querySelector('[aria-current="page"]');
+    if (!activo) return;
+    var centro = activo.offsetLeft - (barra.clientWidth - activo.clientWidth) / 2;
+    barra.scrollTo({ left: Math.max(0, centro), behavior: "auto" });
+  })();
+
+  // Un clic fuera cierra el desplegable de géneros.
+  document.addEventListener("click", function (evento) {
+    document.querySelectorAll("details[data-menu][open]").forEach(function (menu) {
+      if (!menu.contains(evento.target)) menu.open = false;
+    });
+  });
+
+  document.getElementById("cambiar-tema")?.addEventListener("click", () => {
+    const claro = document.documentElement.classList.toggle("claro");
+    localStorage.setItem("tema", claro ? "claro" : "oscuro");
+  });
+</script>

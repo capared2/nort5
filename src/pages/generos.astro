@@ -1,0 +1,65 @@
+---
+import Base from "../layouts/Base.astro";
+import { obtenerIndice } from "../lib/data";
+import { colorGenero, enlaceGenero, nombreGenero, numero } from "../lib/format";
+import { SITIO } from "../lib/sitio";
+import { grafoGeneros } from "../lib/seo";
+
+const indice = await obtenerIndice();
+const generos = [...(indice?.genres ?? [])]
+  .filter((genero) => genero.tagged > 0 || genero.titles > 0)
+  .sort((a, b) => b.tagged - a.tagged || b.titles - a.titles);
+
+const mayor = generos[0]?.tagged ?? 1;
+---
+
+<Base
+  titulo={`Todos los géneros de cine | ${SITIO.nombre}`}
+  descripcion={`Los ${generos.length} géneros del catálogo, de la comedia al cine negro, con todas sus películas.`}
+  canonical="/generos"
+  indice={indice}
+  cache={7200}
+  jsonLd={grafoGeneros(indice)}
+>
+  <header class="mb-8 border-b border-[var(--color-linea)] pb-5">
+    <p class="text-xs font-bold uppercase tracking-[0.18em] text-[var(--color-marca)]">Catálogo</p>
+    <h1 class="mt-1 font-display text-4xl font-extrabold tracking-tight sm:text-5xl">Géneros</h1>
+    <p class="mt-2 text-sm text-[var(--color-tinta-tenue)]">
+      {numero(indice?.total_titles ?? 0)} películas repartidas en {generos.length} géneros.
+    </p>
+  </header>
+
+  <ul class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+    {
+      generos.map((genero) => {
+        const acento = colorGenero(genero.genre);
+        return (
+          <li>
+            <a
+              href={enlaceGenero(genero.genre)}
+              style={`--acento:${acento}`}
+              class="group flex items-center gap-4 rounded-xl border border-[var(--color-linea)] bg-[var(--color-lienzo)] p-4 hover:border-[var(--acento)]"
+            >
+              <span class="h-10 w-1.5 shrink-0 rounded-full" style={`background:${acento}`} />
+              <span class="min-w-0 flex-1">
+                <strong class="block font-display text-lg font-bold group-hover:text-[var(--acento)]">
+                  {genero.name || nombreGenero(genero.genre)}
+                </strong>
+                {/* Una barra proporcional: se ve de un vistazo qué pesa en el archivo. */}
+                <span class="mt-1.5 block h-1 w-full overflow-hidden rounded-full bg-[var(--color-lienzo-alt)]">
+                  <span
+                    class="block h-full rounded-full"
+                    style={`width:${Math.max(4, Math.round((genero.tagged / mayor) * 100))}%;background:${acento}`}
+                  />
+                </span>
+              </span>
+              <span class="shrink-0 text-sm tabular-nums text-[var(--color-tinta-tenue)]">
+                {numero(genero.tagged)}
+              </span>
+            </a>
+          </li>
+        );
+      })
+    }
+  </ul>
+</Base>

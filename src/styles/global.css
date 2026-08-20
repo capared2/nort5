@@ -1,0 +1,114 @@
+@import "tailwindcss";
+
+@theme {
+  /* Geométrica y ancha para los títulos, como los rótulos de un cine. */
+  --font-display: "Outfit", "Helvetica Neue", Arial, sans-serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+
+  /* El ámbar de la sala a oscuras: es el único color fuerte del sitio. */
+  --color-marca: #ffc233;
+  --color-marca-oscuro: #e0a516;
+  --color-marca-tenue: #3a2f10;
+
+  --color-fondo: #0b0d12;
+  --color-lienzo: #14181f;
+  --color-lienzo-alt: #1c222b;
+  --color-linea: #262d38;
+  --color-tinta: #f3f5f9;
+  --color-tinta-suave: #a8b2c1;
+  --color-tinta-tenue: #737e8f;
+}
+
+@layer base {
+  /* El cine se ve a oscuras: el tema claro es la excepción, no el punto de
+     partida. */
+  :root {
+    color-scheme: dark;
+  }
+
+  html.claro {
+    color-scheme: light;
+
+    --color-marca: #a97400;
+    --color-marca-oscuro: #7d5600;
+    --color-marca-tenue: #fdf1d5;
+
+    --color-fondo: #f5f6f8;
+    --color-lienzo: #ffffff;
+    --color-lienzo-alt: #eceff3;
+    --color-linea: #dde1e8;
+    --color-tinta: #0f1319;
+    --color-tinta-suave: #4c5666;
+    --color-tinta-tenue: #78828f;
+  }
+
+  body {
+    background-color: var(--color-fondo);
+    color: var(--color-tinta);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background: var(--color-marca);
+    color: #10131a;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-marca);
+    outline-offset: 2px;
+  }
+}
+
+@utility contenedor {
+  margin-inline: auto;
+  max-width: 82rem;
+  padding-inline: 1.25rem;
+}
+
+/* Recorte de líneas para títulos y sinopsis. */
+@utility lineas-* {
+  display: -webkit-box;
+  -webkit-line-clamp: --value(integer);
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Una fila que se arrastra con el dedo y se para en cada carátula. */
+@utility carrusel {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 1.25rem;
+  scrollbar-width: none;
+  padding-bottom: 0.25rem;
+}
+
+@utility carrusel-oculto {
+  scrollbar-width: none;
+}
+
+.carrusel::-webkit-scrollbar,
+.carrusel-oculto::-webkit-scrollbar {
+  display: none;
+}
+
+/* El degradado que deja leer el texto sobre una carátula a pantalla completa. */
+@utility velo {
+  background-image: linear-gradient(
+    to right,
+    var(--color-fondo) 0%,
+    color-mix(in srgb, var(--color-fondo) 88%, transparent) 45%,
+    color-mix(in srgb, var(--color-fondo) 35%, transparent) 100%
+  );
+}
+
+@utility velo-vertical {
+  background-image: linear-gradient(
+    to top,
+    var(--color-fondo) 0%,
+    color-mix(in srgb, var(--color-fondo) 70%, transparent) 40%,
+    transparent 100%
+  );
+}

@@ -1,0 +1,89 @@
+---
+import Base from "../../layouts/Base.astro";
+import Fila from "../../components/Fila.astro";
+import Rejilla from "../../components/Rejilla.astro";
+import Paginacion from "../../components/Paginacion.astro";
+import Vacio from "../../components/Vacio.astro";
+import { obtenerGenero, obtenerIndice, obtenerPaginaGenero } from "../../lib/data";
+import { colorGenero, enlaceGenero, nombreGenero, numero } from "../../lib/format";
+import { SITIO } from "../../lib/sitio";
+import { grafoGenero } from "../../lib/seo";
+
+const POR_PAGINA = 30;
+
+const { clave = "" } = Astro.params;
+const pagina = Math.max(1, Number(Astro.url.searchParams.get("p") ?? 1) || 1);
+
+const indice = await obtenerIndice();
+const entrada = indice?.genres.find((genero) => genero.genre === clave);
+const lista = await obtenerGenero(clave);
+
+// Un género existe si el archivo tiene fichas suyas o si al menos aparece como
+// género secundario de alguna película.
+if (!entrada && !lista?.titles?.length) {
+  return new Response(null, { status: 404, statusText: "Género no encontrado" });
+}
+
+const nombre = entrada?.name || lista?.name || nombreGenero(clave);
+const acento = colorGenero(clave);
+
+// Arriba, lo mejor del género contando también las que lo llevan como
+// secundario; abajo, el archivo completo de las que viven aquí.
+const destacadas = (lista?.titles ?? []).slice(0, 18);
+const archivo =
+  entrada && entrada.titles > 0
+    ? await obtenerPaginaGenero(entrada, pagina, POR_PAGINA)
+    : { peliculas: [], total: 0, pagina: 1, paginas: 1 };
+
+const titulo =
+  archivo.pagina > 1
+    ? `Películas de ${nombre} · página ${archivo.pagina} | ${SITIO.nombre}`
+    : `Las mejores películas de ${nombre} | ${SITIO.nombre}`;
+---
+
+<Base
+  titulo={titulo}
+  descripcion={`${numero(lista?.count ?? entrada?.titles ?? 0)} películas de ${nombre} con su nota, su sinopsis y su ficha completa.`}
+  canonical={enlaceGenero(clave, archivo.pagina)}
+  indice={indice}
+  generoActivo={clave}
+  cache={3600}
+  anterior={archivo.pagina > 1 ? enlaceGenero(clave, archivo.pagina - 1) : null}
+  siguiente={archivo.pagina < archivo.paginas ? enlaceGenero(clave, archivo.pagina + 1) : null}
+  jsonLd={grafoGenero(clave, nombre, destacadas.length ? destacadas : archivo.peliculas, archivo.pagina)}
+>
+  <header class="mb-8 border-b border-[var(--color-linea)] pb-5">
+    <p class="text-xs font-bold uppercase tracking-[0.18em]" style={`color:${acento}`}>Género</p>
+    <h1 class="mt-1 font-display text-4xl font-extrabold tracking-tight sm:text-5xl">{nombre}</h1>
+    <p class="mt-2 text-sm text-[var(--color-tinta-tenue)]">
+      {numero(lista?.count ?? entrada?.tagged ?? 0)} películas la llevan como género
+      {archivo.pagina > 1 && ` · página ${archivo.pagina} de ${archivo.paginas}`}
+    </p>
+  </header>
+
+  {
+    archivo.pagina === 1 && destacadas.length > 0 && (
+      <Fila titulo={`Imprescindibles de ${nombre}`} peliculas={destacadas} numerar clase="!mt-0" />
+    )
+  }
+
+  {
+    archivo.peliculas.length > 0 ? (
+      <section class="mt-12">
+        <h2 class="mb-4 font-display text-xl font-bold tracking-tight sm:text-2xl">
+          <span class="mr-2 inline-block h-5 w-1 translate-y-0.5 rounded-full" style={`background:${acento}`} />
+          Todo el archivo de {nombre}
+        </h2>
+        <Rejilla peliculas={archivo.peliculas} />
+        <Paginacion clave={clave} pagina={archivo.pagina} paginas={archivo.paginas} />
+      </section>
+    ) : (
+      destacadas.length === 0 && (
+        <Vacio
+          titulo={`Todavía no hay películas de ${nombre}`}
+          detalle="En cuanto la recolección traiga alguna, aparecerá aquí."
+        />
+      )
+    )
+  }
+</Base>

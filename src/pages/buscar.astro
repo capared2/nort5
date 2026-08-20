@@ -1,0 +1,88 @@
+---
+import Base from "../layouts/Base.astro";
+import Vacio from "../components/Vacio.astro";
+import { buscar, obtenerIndice } from "../lib/data";
+import { enlaceGenero, enlacePelicula, nombreGenero, nota, numero } from "../lib/format";
+import { SITIO } from "../lib/sitio";
+
+const consulta = (Astro.url.searchParams.get("q") ?? "").trim().slice(0, 80);
+
+const [indice, resultados] = await Promise.all([
+  obtenerIndice(),
+  consulta ? buscar(consulta) : Promise.resolve([]),
+]);
+---
+
+<Base
+  titulo={consulta ? `«${consulta}» | ${SITIO.nombre}` : `Buscar películas | ${SITIO.nombre}`}
+  descripcion={`Busca entre las ${numero(indice?.total_titles ?? 0)} películas del catálogo de ${SITIO.nombre}.`}
+  canonical="/buscar"
+  indice={indice}
+  cache={600}
+  noindex
+>
+  <header class="mb-6">
+    <p class="text-xs font-bold uppercase tracking-[0.18em] text-[var(--color-marca)]">Búsqueda</p>
+    <h1 class="mt-1 font-display text-4xl font-extrabold tracking-tight">
+      {consulta ? `«${consulta}»` : "Buscar películas"}
+    </h1>
+    <p class="mt-1 text-sm text-[var(--color-tinta-tenue)]">
+      {
+        consulta
+          ? `${numero(resultados.length)} ${resultados.length === 1 ? "resultado" : "resultados"} por título`
+          : "Escribe en el buscador de la cabecera el título de una película."
+      }
+    </p>
+  </header>
+
+  {
+    consulta && resultados.length === 0 ? (
+      <Vacio
+        titulo="Sin resultados"
+        detalle="La búsqueda va por el título, original o traducido. Prueba con menos palabras, o entra por género."
+      />
+    ) : (
+      resultados.length > 0 && (
+        <ul class="divide-y divide-[var(--color-linea)] overflow-hidden rounded-xl border border-[var(--color-linea)] bg-[var(--color-lienzo)]">
+          {resultados.map((resultado) => (
+            <li>
+              <a
+                href={enlacePelicula(resultado.id)}
+                class="flex items-center gap-4 px-4 py-3 hover:bg-[var(--color-lienzo-alt)]"
+              >
+                <span class="min-w-0 flex-1">
+                  <strong class="block truncate font-display text-lg font-semibold">
+                    {resultado.title}
+                  </strong>
+                  <span class="text-xs text-[var(--color-tinta-tenue)]">
+                    {resultado.year ?? "Sin fecha"} · {nombreGenero(resultado.category)}
+                  </span>
+                </span>
+                {resultado.rating !== null && (
+                  <span class="shrink-0 text-sm font-semibold tabular-nums text-[var(--color-marca)]">
+                    {nota(resultado.rating)}
+                  </span>
+                )}
+              </a>
+            </li>
+          ))}
+        </ul>
+      )
+    )
+  }
+
+  {
+    !consulta && (
+      <div class="mt-8 flex flex-wrap gap-2">
+        {(indice?.genres ?? []).slice(0, 12).map((genero) => (
+          <a
+            href={enlaceGenero(genero.genre)}
+            class="rounded-full border border-[var(--color-linea)] px-4 py-2 text-sm font-semibold hover:border-[var(--color-marca)] hover:text-[var(--color-marca)]"
+          >
+            {genero.name || nombreGenero(genero.genre)}
+          </a>
+        ))}
+      </div>
+    )
+  }
+</Base>

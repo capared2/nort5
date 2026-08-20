@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="fondo" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#141922"/>
+      <stop offset="1" stop-color="#0b0d12"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#fondo)"/>
+  <g transform="translate(96 210)">
+    <rect width="132" height="132" rx="30" fill="#ffc233"/>
+    <rect x="21" y="33" width="90" height="66" rx="9" fill="#0b0d12"/>
+    <g fill="#ffc233">
+      <rect x="28" y="40" width="10" height="10" rx="2.6"/>
+      <rect x="28" y="61" width="10" height="10" rx="2.6"/>
+      <rect x="28" y="82" width="10" height="10" rx="2.6"/>
+      <rect x="94" y="40" width="10" height="10" rx="2.6"/>
+      <rect x="94" y="61" width="10" height="10" rx="2.6"/>
+      <rect x="94" y="82" width="10" height="10" rx="2.6"/>
+      <path d="M57 57l25 16-25 16V57Z"/>
+    </g>
+  </g>
+  <text x="264" y="300" fill="#f3f5f9" font-family="Outfit, Inter, Helvetica, Arial, sans-serif" font-size="104" font-weight="800" letter-spacing="-3">nort5</text>
+  <text x="266" y="356" fill="#ffc233" font-family="Inter, Helvetica, Arial, sans-serif" font-size="30" font-weight="600" letter-spacing="7">EL CINE, ORDENADO</text>
+  <rect x="96" y="430" width="1008" height="2" fill="#262d38"/>
+  <text x="96" y="492" fill="#a8b2c1" font-family="Inter, Helvetica, Arial, sans-serif" font-size="30">Nota, sinopsis, reparto y ficha completa de miles de películas.</text>
+</svg>

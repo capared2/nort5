@@ -1,0 +1,58 @@
+---
+import { enlaceGenero } from "../lib/format";
+
+interface Props {
+  clave: string;
+  pagina: number;
+  paginas: number;
+}
+
+const { clave, pagina, paginas } = Astro.props;
+
+// Una ventana corta alrededor de la página actual: con cientos de páginas, la
+// lista completa no cabe en un móvil.
+const desde = Math.max(1, Math.min(pagina - 2, paginas - 4));
+const hasta = Math.min(paginas, Math.max(pagina + 2, 5));
+const numeros = Array.from({ length: Math.max(0, hasta - desde + 1) }, (_, i) => desde + i);
+---
+
+{
+  paginas > 1 && (
+    <nav class="mt-10 flex flex-wrap items-center justify-center gap-2" aria-label="Paginación">
+      {pagina > 1 && (
+        <a
+          href={enlaceGenero(clave, pagina - 1)}
+          rel="prev"
+          class="rounded-full border border-[var(--color-linea)] px-4 py-2 text-sm font-semibold hover:border-[var(--color-marca)] hover:text-[var(--color-marca)]"
+        >
+          Anterior
+        </a>
+      )}
+
+      {numeros.map((numero) => (
+        <a
+          href={enlaceGenero(clave, numero)}
+          aria-current={numero === pagina ? "page" : undefined}
+          class:list={[
+            "min-w-10 rounded-full px-3 py-2 text-center text-sm font-semibold tabular-nums",
+            numero === pagina
+              ? "bg-[var(--color-marca)] text-[#10131a]"
+              : "border border-[var(--color-linea)] hover:border-[var(--color-marca)] hover:text-[var(--color-marca)]",
+          ]}
+        >
+          {numero}
+        </a>
+      ))}
+
+      {pagina < paginas && (
+        <a
+          href={enlaceGenero(clave, pagina + 1)}
+          rel="next"
+          class="rounded-full border border-[var(--color-linea)] px-4 py-2 text-sm font-semibold hover:border-[var(--color-marca)] hover:text-[var(--color-marca)]"
+        >
+          Siguiente
+        </a>
+      )}
+    </nav>
+  )
+}

@@ -1,0 +1,107 @@
+---
+import type { Pelicula, Tarjeta } from "../lib/types";
+import Estrella from "./Estrella.astro";
+import { caratula, duracion, enlacePelicula, nombreGenero } from "../lib/format";
+
+type Variante = "normal" | "fila" | "lista";
+
+interface Props {
+  pelicula: Tarjeta | Pelicula;
+  variante?: Variante;
+  /** Número de orden, para las listas que son un ranking. */
+  posicion?: number;
+}
+
+const { pelicula, variante = "normal", posicion } = Astro.props;
+
+const enlace = enlacePelicula(pelicula.id);
+const cartel = caratula(pelicula.poster, variante === "lista" ? 160 : 300);
+const generos = (pelicula.genres ?? []).slice(0, 2).map(nombreGenero);
+const sinopsis = "plot" in pelicula ? pelicula.plot : "";
+---
+
+{
+  variante === "lista" ? (
+    <article class="group flex gap-4 border-b border-[var(--color-linea)] py-4 last:border-0">
+      {posicion !== undefined && (
+        <span class="w-7 shrink-0 pt-1 text-right font-display text-lg font-bold tabular-nums text-[var(--color-tinta-tenue)]">
+          {posicion}
+        </span>
+      )}
+      <a
+        href={enlace}
+        class="w-16 shrink-0 overflow-hidden rounded-md bg-[var(--color-lienzo-alt)] sm:w-20"
+        tabindex="-1"
+        aria-hidden="true"
+      >
+        {cartel ? (
+          <img src={cartel} alt="" loading="lazy" decoding="async" class="aspect-2/3 w-full object-cover" />
+        ) : (
+          <div class="aspect-2/3 w-full" />
+        )}
+      </a>
+      <div class="min-w-0 flex-1">
+        <h3 class="font-display text-base font-semibold leading-tight sm:text-lg">
+          <a href={enlace} class="hover:text-[var(--color-marca)]">
+            {pelicula.title}
+          </a>
+        </h3>
+        <p class="mt-0.5 flex flex-wrap items-center gap-x-2 text-xs text-[var(--color-tinta-tenue)]">
+          {pelicula.year && <span>{pelicula.year}</span>}
+          {pelicula.runtime_minutes ? <span>{duracion(pelicula.runtime_minutes)}</span> : null}
+          {generos.length > 0 && <span class="truncate">{generos.join(" · ")}</span>}
+        </p>
+        {sinopsis && <p class="lineas-2 mt-1.5 text-sm text-[var(--color-tinta-suave)]">{sinopsis}</p>}
+      </div>
+      <Estrella valor={pelicula.rating} clase="shrink-0 self-start pt-1" />
+    </article>
+  ) : (
+    <article
+      class:list={[
+        "group flex flex-col",
+        variante === "fila" && "w-36 shrink-0 snap-start sm:w-44",
+      ]}
+    >
+      <a
+        href={enlace}
+        class="relative block overflow-hidden rounded-lg bg-[var(--color-lienzo-alt)] ring-1 ring-[var(--color-linea)] transition duration-300 group-hover:ring-[var(--color-marca)]"
+      >
+        {cartel ? (
+          <img
+            src={cartel}
+            alt={`Cartel de ${pelicula.title}`}
+            loading="lazy"
+            decoding="async"
+            class="aspect-2/3 w-full object-cover transition duration-500 group-hover:scale-105"
+          />
+        ) : (
+          <div class="grid aspect-2/3 w-full place-items-center px-2 text-center font-display text-sm text-[var(--color-tinta-tenue)]">
+            {pelicula.title}
+          </div>
+        )}
+
+        {posicion !== undefined && (
+          <span class="absolute left-0 top-0 rounded-br-lg bg-[var(--color-fondo)]/85 px-2.5 py-1 font-display text-sm font-bold tabular-nums text-[var(--color-marca)]">
+            {posicion}
+          </span>
+        )}
+
+        {pelicula.rating !== null && (
+          <span class="absolute inset-x-0 bottom-0 velo-vertical flex items-center justify-between px-2 pb-1.5 pt-6 text-xs">
+            <Estrella valor={pelicula.rating} />
+            {pelicula.year && <span class="text-[var(--color-tinta-suave)]">{pelicula.year}</span>}
+          </span>
+        )}
+      </a>
+
+      <h3 class="lineas-2 mt-2 font-display text-sm font-semibold leading-snug sm:text-base">
+        <a href={enlace} class="hover:text-[var(--color-marca)]">
+          {pelicula.title}
+        </a>
+      </h3>
+      {generos.length > 0 && (
+        <p class="mt-0.5 truncate text-xs text-[var(--color-tinta-tenue)]">{generos.join(" · ")}</p>
+      )}
+    </article>
+  )
+}
