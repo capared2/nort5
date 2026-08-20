@@ -98,7 +98,7 @@ export function peliculaJsonLd(pelicula: Pelicula) {
             worstRating: 1,
           }
         : undefined,
-    // Los datos son de IMDb: decirlo también aquí, no solo en el pie.
+    // Los datos son de Rotten Tomatoes: decirlo también aquí, no solo en el pie.
     sameAs: pelicula.url,
     // Para asistentes de voz y respuestas generadas: qué leer en alto si
     // alguien pregunta por esta película.

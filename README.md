@@ -1,7 +1,7 @@
 # nort5 — agregador de películas
 
 Frontend de **nort5.com**: reúne miles de películas, las ordena por género y
-enlaza cada ficha a su página de origen en IMDb.
+enlaza cada ficha a su página de origen en Rotten Tomatoes.
 
 Hecho con **Astro 7 + TypeScript + Tailwind 4**, renderizado en el servidor
 sobre **Cloudflare Workers**.
@@ -58,7 +58,7 @@ archivo entero**.
 | Ruta | Qué es |
 | --- | --- |
 | `/` | destacada, lo más visto, mejor valoradas, estrenos y clásicos |
-| `/pelicula/{id}` | ficha completa; `{id}` es el identificador de IMDb (`ttNNNNNNN`) |
+| `/pelicula/{id}` | ficha completa; `{id}` es el identificador en Rotten Tomatoes (p. ej. `the_godfather`) |
 | `/genero/{género}` | imprescindibles del género y su archivo, paginado con `?p=N` |
 | `/generos` | todos los géneros, con su peso en el catálogo |
 | `/top` | ranking por nota, solo con las que superan los 25.000 votos |
@@ -94,9 +94,12 @@ Oscuro de partida, porque el cine se ve a oscuras, con un único color fuerte
 —el ámbar de la sala— para notas, acentos y botones. Hay tema claro detrás del
 botón de la cabecera; la preferencia se guarda en el navegador.
 
-Las carátulas se piden ya servidas al ancho en el que se van a ver: el nombre
-del fichero de IMDb admite instrucciones de recorte, y una parrilla enseña
-treinta imágenes de golpe.
+Las carátulas se piden ya servidas al ancho en el que se van a ver: el
+redimensionador de Flixster lleva la medida en la propia ruta, y una parrilla
+enseña treinta imágenes de golpe. En origen vienen a 68×102 píxeles.
+
+Cada tarjeta enseña el porcentaje de los críticos con su color —verde, ámbar o
+rojo—, que es lo que se lee de un vistazo sin interpretar un número.
 
 ## Desarrollo
 
@@ -116,6 +119,5 @@ DATASET_BASE_URL=http://127.0.0.1:8787 npm run dev
 
 ## Origen de los datos
 
-Las fichas y las carátulas proceden de IMDb, que es de Amazon. nort5 no está
-asociado con ellos y cada ficha enlaza a su página de origen. Los datasets
-públicos de IMDb se publican para uso personal y no comercial.
+Las fichas y las carátulas proceden de Rotten Tomatoes, que es de Fandango.
+nort5 no está asociado con ellos y cada ficha enlaza a su página de origen.

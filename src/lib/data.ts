@@ -10,7 +10,7 @@ import type {
   Rutas,
   Tarjeta,
 } from "./types";
-import { normalizar } from "./format";
+import { claveGenero, normalizar } from "./format";
 
 /**
  * De dónde sale el catálogo.
@@ -59,7 +59,9 @@ function porPopularidad<T extends { votes: number | null; rating: number | null 
  * que llevar el género dentro y no se rompe si la película cambia de género.
  */
 export async function obtenerPelicula(id: string): Promise<Pelicula | null> {
-  if (!/^tt\d{7,10}$/.test(id)) return null;
+  // El identificador es el slug de Rotten Tomatoes, y va en la URL: se
+  // comprueba antes de convertirlo en una ruta de fichero.
+  if (!/^[a-z0-9][a-z0-9_-]{0,120}$/.test(id)) return null;
 
   const rutas = await leerJson<Rutas>(`/rutas/${id.slice(-2)}.json`);
   const destino = rutas?.titles?.[id];
@@ -123,14 +125,14 @@ export async function obtenerPaginaGenero(
 /**
  * Películas parecidas a una dada.
  *
- * IMDb dice cuáles se le parecen, pero solo da identificadores: resolver cada
- * uno costaría una lectura por película. Se cruza esa lista con lo mejor de su
- * género, que ya es un solo fichero: las que IMDb señala salen primero y el
- * resto rellena hasta completar la fila.
+ * La ficha de origen enlaza a otras películas, pero sólo por identificador:
+ * resolver cada uno costaría una lectura por película. Se cruza esa lista con
+ * lo mejor de su género, que ya es un solo fichero, así que las señaladas salen
+ * primero y el resto rellena hasta completar la fila.
  */
 export async function obtenerParecidas(pelicula: Pelicula, limite = 12): Promise<Tarjeta[]> {
   const claves = pelicula.genres.length
-    ? pelicula.genres.map((nombre) => normalizar(nombre).replace(/[^a-z0-9]+/g, "-"))
+    ? pelicula.genres.map(claveGenero)
     : [pelicula.category];
 
   const listas = await Promise.all(claves.slice(0, 2).map((clave) => obtenerGenero(clave)));

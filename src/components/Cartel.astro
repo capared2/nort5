@@ -26,8 +26,8 @@ const imagen = caratula(poster, ancho);
 const acento = colorGenero(claveGenero(genero));
 
 // Sin carátula, el hueco se compone: el acento del género, el título en grande
-// y el año. Los datasets de IMDb no traen imágenes, así que esto no es un caso
-// raro —es la mitad del catálogo— y tiene que verse hecho a propósito.
+// y el año. Casi todas las fichas traen carátula, pero alguna siempre se
+// queda sin ella, y un rectángulo gris parece una web rota.
 const grande = ancho >= 400;
 ---
 

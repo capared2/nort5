@@ -18,6 +18,11 @@ export interface Dinero {
   currency: string;
 }
 
+export interface DondeVerla {
+  name: string;
+  url: string;
+}
+
 /** Ficha completa, tal y como la guarda el scraper. */
 export interface Pelicula {
   id: string;
@@ -32,8 +37,16 @@ export interface Pelicula {
   release_date: string | null;
   runtime_minutes: number | null;
   certificate: string | null;
+  /** Media de los críticos, sobre 10. Es la que pinta las estrellas. */
   rating: number | null;
   votes: number | null;
+  /** El porcentaje de críticos a los que les gustó. */
+  tomatometer: number | null;
+  tomatometer_count: number | null;
+  tomatometer_certified: boolean;
+  /** El porcentaje del público. */
+  audience_score: number | null;
+  audience_count: number | null;
   metascore: number | null;
   plot: string;
   tagline: string;
@@ -49,6 +62,7 @@ export interface Pelicula {
   companies: string[];
   budget: Dinero | null;
   gross_worldwide: Dinero | null;
+  streaming: DondeVerla[];
   similar: string[];
   source: string;
   scraped_at: string;
@@ -65,6 +79,8 @@ export interface Tarjeta {
   genres: string[];
   rating: number | null;
   votes: number | null;
+  tomatometer: number | null;
+  audience_score: number | null;
   runtime_minutes: number | null;
   certificate: string | null;
   poster: string | null;

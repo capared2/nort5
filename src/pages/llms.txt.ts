@@ -19,20 +19,20 @@ export const GET: APIRoute = async () => {
 > ${SITIO.descripcion}
 
 ${SITIO.nombre} es un agregador de películas. Cada ficha reúne la nota, el número
-de votos, la sinopsis, el reparto, la duración y los datos de producción, y
-enlaza a su página de origen en IMDb, que es de donde se recogen.
+de opiniones, la sinopsis, el reparto, la duración y dónde verla, y
+enlaza a su página de origen en Rotten Tomatoes, que es de donde se recogen.
 
 - Catálogo: ${indice?.total_titles ?? 0} películas en ${generos.length} géneros.
 - Actualizado: ${indice?.generated_at ?? "sin datos"}.
-- Origen de los datos: imdb.com (recogidos por https://github.com/capared2/nort5bat).
+- Origen de los datos: rottentomatoes.com (recogidos por https://github.com/capared2/nort5bat).
 
 ## Cómo están organizadas las páginas
 
 - ${absoluta("/")} — destacadas, mejor valoradas, estrenos y clásicos.
-- ${absoluta("/pelicula/{id}")} — ficha de una película; {id} es su identificador de IMDb (ttNNNNNNN).
+- ${absoluta("/pelicula/{id}")} — ficha de una película; {id} es su identificador en Rotten Tomatoes (p. ej. the_godfather).
 - ${absoluta("/genero/{género}")} — todas las películas de un género, paginadas con ?p=N.
 - ${absoluta("/generos")} — el listado de géneros.
-- ${absoluta("/top")} — ranking por nota, solo con las que superan los 25.000 votos.
+- ${absoluta("/top")} — ranking por nota, solo con las que tienen público suficiente.
 - ${absoluta("/buscar?q={consulta}")} — búsqueda por título.
 
 ## Géneros

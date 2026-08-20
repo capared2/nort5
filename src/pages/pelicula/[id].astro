@@ -3,12 +3,12 @@ import Base from "../../layouts/Base.astro";
 import Estrella from "../../components/Estrella.astro";
 import Fila from "../../components/Fila.astro";
 import Cartel from "../../components/Cartel.astro";
+import Porcentaje from "../../components/Porcentaje.astro";
 import { obtenerIndice, obtenerParecidas, obtenerPelicula } from "../../lib/data";
 import {
   caratula,
   claveGenero,
   colorGenero,
-  colorMetascore,
   dinero,
   duracion,
   enlaceGenero,
@@ -119,21 +119,24 @@ const descripcion =
             )
           }
 
-          <p class="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-[var(--color-tinta-suave)]">
+          <p class="mt-4 flex flex-wrap items-center gap-x-5 gap-y-3">
+            <Porcentaje
+              valor={pelicula.tomatometer}
+              etiqueta="Críticos"
+              cuantos={pelicula.tomatometer_count}
+              certificado={pelicula.tomatometer_certified}
+              tamano="grande"
+            />
+            <Porcentaje
+              valor={pelicula.audience_score}
+              etiqueta="Público"
+              cuantos={pelicula.audience_count}
+              tamano="grande"
+            />
+          </p>
+
+          <p class="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-[var(--color-tinta-suave)]">
             <Estrella valor={pelicula.rating} votos={pelicula.votes} tamano="grande" />
-            {
-              pelicula.metascore !== null && pelicula.metascore !== undefined && (
-                <span class="inline-flex items-center gap-1.5">
-                  <span
-                    class="grid size-6 place-items-center rounded text-xs font-bold text-white"
-                    style={`background:${colorMetascore(pelicula.metascore)}`}
-                  >
-                    {pelicula.metascore}
-                  </span>
-                  <span class="text-xs">Metascore</span>
-                </span>
-              )
-            }
             {pelicula.year && <span>{pelicula.year}</span>}
             {pelicula.runtime_minutes ? <span>{duracion(pelicula.runtime_minutes)}</span> : null}
             {
@@ -210,7 +213,7 @@ const descripcion =
               target="_blank"
               class="inline-flex items-center gap-2 rounded-full border border-[var(--color-linea)] px-5 py-2.5 text-sm font-semibold hover:border-[var(--color-marca)] hover:text-[var(--color-marca)]"
             >
-              Ficha en IMDb
+              Ficha en Rotten Tomatoes
               <span aria-hidden="true">↗</span>
             </a>
           </p>
@@ -255,6 +258,29 @@ const descripcion =
     }
 
     {
+      pelicula.streaming?.length > 0 && (
+        <section class="mt-12">
+          <h2 class="mb-4 font-display text-xl font-bold tracking-tight sm:text-2xl">
+            <span class="mr-2 inline-block h-5 w-1 translate-y-0.5 rounded-full bg-[var(--color-marca)]" />
+            Dónde verla
+          </h2>
+          <p class="flex flex-wrap gap-2">
+            {pelicula.streaming.map((sitio) => (
+              <a
+                href={sitio.url}
+                rel="noopener nofollow"
+                target="_blank"
+                class="rounded-full border border-[var(--color-linea)] bg-[var(--color-lienzo)] px-4 py-2 text-sm font-semibold hover:border-[var(--color-marca)] hover:text-[var(--color-marca)]"
+              >
+                {sitio.name} <span aria-hidden="true">↗</span>
+              </a>
+            ))}
+          </p>
+        </section>
+      )
+    }
+
+    {
       ficha.length > 0 && (
         <section class="mt-12">
           <h2 class="mb-4 font-display text-xl font-bold tracking-tight sm:text-2xl">
@@ -288,8 +314,8 @@ const descripcion =
     <Fila titulo="Si te gustó, sigue por aquí" peliculas={parecidas} enlace={enlaceGenero(claveGenero(generoPrincipal))} />
 
     <p class="mt-10 text-xs text-[var(--color-tinta-tenue)]">
-      Ficha recogida de IMDb{pelicula.scraped_at && ` el ${fecha(pelicula.scraped_at)}`}.
-      {pelicula.votes ? ` La nota y los ${numero(pelicula.votes)} votos son suyos.` : ""}
+      Ficha recogida de Rotten Tomatoes{pelicula.scraped_at && ` el ${fecha(pelicula.scraped_at)}`}.
+      {pelicula.votes ? ` Las notas y los ${numero(pelicula.votes)} votos son suyos.` : ""}
     </p>
   </article>
 </Base>

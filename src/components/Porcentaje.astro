@@ -1,0 +1,44 @@
+---
+import { colorPorcentaje, numero } from "../lib/format";
+
+interface Props {
+  valor: number | null;
+  etiqueta: string;
+  cuantos?: number | null;
+  certificado?: boolean;
+  tamano?: "normal" | "grande";
+}
+
+const { valor, etiqueta, cuantos = null, certificado = false, tamano = "normal" } = Astro.props;
+const grande = tamano === "grande";
+const color = colorPorcentaje(valor);
+---
+
+{
+  valor !== null && valor !== undefined && (
+    <span class="inline-flex items-center gap-2">
+      <span
+        class:list={[
+          "grid shrink-0 place-items-center rounded-full font-bold text-white tabular-nums",
+          grande ? "size-11 text-sm" : "size-8 text-xs",
+        ]}
+        style={`background:${color}`}
+      >
+        {valor}%
+      </span>
+      <span class="flex flex-col leading-tight">
+        <span class:list={["font-semibold", grande ? "text-sm" : "text-xs"]}>
+          {etiqueta}
+          {certificado && (
+            <span class="ml-1 align-middle text-[0.6rem] uppercase tracking-wide text-[var(--color-marca)]">
+              certificado
+            </span>
+          )}
+        </span>
+        {cuantos ? (
+          <span class="text-xs text-[var(--color-tinta-tenue)]">{numero(cuantos)} opiniones</span>
+        ) : null}
+      </span>
+    </span>
+  )
+}

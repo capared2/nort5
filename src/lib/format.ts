@@ -79,16 +79,8 @@ export function claveGenero(nombre: string): string {
 
 const TIPOS: Record<string, string> = {
   movie: "Película",
-  tvMovie: "Telefilme",
+  tv: "Serie",
   tvSeries: "Serie",
-  tvMiniSeries: "Miniserie",
-  tvSpecial: "Especial",
-  short: "Cortometraje",
-  video: "Vídeo",
-  videoGame: "Videojuego",
-  tvEpisode: "Episodio",
-  Movie: "Película",
-  TVSeries: "Serie",
 };
 
 export function nombreTipo(tipo: string): string {
@@ -103,60 +95,62 @@ export function enlaceGenero(clave: string, pagina = 1): string {
   return pagina > 1 ? `/genero/${clave}?p=${pagina}` : `/genero/${clave}`;
 }
 
-/** Los anchos que sirve TMDB; se elige el más ajustado por arriba. */
-const ANCHOS_TMDB = [92, 154, 185, 342, 500, 780];
-
 /**
  * Pide la carátula del ancho que hace falta.
  *
- * Las imágenes originales pesan cientos de kilobytes y una parrilla enseña
- * treinta, así que se piden ya servidas al tamaño en el que se van a ver. Los
- * dos orígenes lo permiten por URL: IMDb con instrucciones de recorte en el
- * nombre del fichero, TMDB con un tramo de ruta por ancho.
+ * Las imágenes de una parrilla se cuentan por decenas, así que se piden ya
+ * servidas al tamaño en el que se van a ver. El redimensionador de Flixster
+ * lleva la medida en la propia ruta y acepta cambiarla; sólo se toca la
+ * primera, porque la URL lleva otra anidada dentro.
  */
 export function caratula(url: string | null | undefined, ancho = 300): string | null {
   if (!url) return null;
-
-  if (url.includes("image.tmdb.org")) {
-    const elegido = ANCHOS_TMDB.find((valor) => valor >= ancho);
-    return url.replace(/\/t\/p\/[^/]+\//, `/t/p/${elegido ? `w${elegido}` : "original"}/`);
-  }
-
-  return url.replace(/\._V1_[^./]*(\.[a-z]+)$/i, `._V1_QL75_UX${ancho}_$1`);
+  const alto = Math.round(ancho * 1.5);
+  return url.replace(/\/\d{2,4}x\d{2,4}\//, `/${ancho}x${alto}/`);
 }
 
-/** El color del metascore: verde, ámbar o rojo, como en la prensa. */
-export function colorMetascore(valor: number | null | undefined): string {
+/** Como la anterior, para las imágenes apaisadas (fondos y fotogramas). */
+export function apaisada(url: string | null | undefined, ancho = 800): string | null {
+  if (!url) return null;
+  const alto = Math.round((ancho * 9) / 16);
+  return url.replace(/\/\d{2,4}x\d{2,4}\//, `/${ancho}x${alto}/`);
+}
+
+/** El color de un porcentaje de Rotten Tomatoes: fresco, regular o podrido. */
+export function colorPorcentaje(valor: number | null | undefined): string {
   if (valor === null || valor === undefined) return "var(--color-tinta-tenue)";
-  if (valor >= 61) return "#3ea72d";
+  if (valor >= 60) return "#3ea72d";
   if (valor >= 40) return "#d9a218";
   return "#d0342c";
 }
 
 /** Un acento por género, para que cada sección se reconozca de un vistazo. */
 const COLORES: Record<string, string> = {
-  action: "#ff6b3d",
-  adventure: "#f0a028",
-  animation: "#41b8d5",
-  biography: "#b08bd6",
-  comedy: "#ffd23f",
-  crime: "#e0574d",
-  documentary: "#6ab7a8",
+  accion: "#ff6b3d",
+  aventura: "#f0a028",
+  animacion: "#41b8d5",
+  anime: "#7c9cf0",
+  biografia: "#b08bd6",
+  comedia: "#ffd23f",
+  crimen: "#e0574d",
+  documental: "#6ab7a8",
   drama: "#e08fb0",
-  family: "#7ec4a0",
-  fantasy: "#a78bfa",
-  "film-noir": "#8f9bb3",
-  history: "#c9a227",
-  horror: "#d64545",
-  music: "#f471b5",
+  fantasia: "#a78bfa",
+  historia: "#c9a227",
+  navidad: "#e05252",
+  terror: "#d64545",
+  "infantil-y-familiar": "#7ec4a0",
+  lgbtq: "#f471b5",
+  musica: "#f471b5",
   musical: "#f9a8d4",
-  mystery: "#7c9cf0",
+  "misterio-y-suspense": "#7c9cf0",
+  naturaleza: "#5eb85e",
   romance: "#ff8fa3",
-  "sci-fi": "#4fd1c5",
-  short: "#9ca3af",
-  sport: "#5eb85e",
-  thriller: "#e8845e",
-  war: "#a68a64",
+  "ciencia-ficcion": "#4fd1c5",
+  cortometraje: "#9ca3af",
+  deporte: "#5eb85e",
+  monologos: "#ffd23f",
+  belico: "#a68a64",
   western: "#c98b5a",
 };
 
