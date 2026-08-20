@@ -13,7 +13,7 @@ const grande = tamano === "grande";
 ---
 
 {
-  valor !== null && valor !== undefined && (
+  valor != null && (
     <span class:list={["inline-flex items-baseline gap-1.5", clase]}>
       <svg
         class:list={["shrink-0 self-center fill-[var(--color-marca)]", grande ? "size-5" : "size-4"]}

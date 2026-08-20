@@ -84,11 +84,11 @@ const sinopsis = "plot" in pelicula ? pelicula.plot : "";
           </span>
         )}
 
-        {(pelicula.tomatometer !== null || pelicula.rating !== null) && (
+        {(pelicula.tomatometer != null || pelicula.rating != null) && (
           <span class="absolute inset-x-0 bottom-0 velo-vertical flex items-center justify-between px-2 pb-1.5 pt-6 text-xs">
             {/* El porcentaje de los críticos es la marca de la casa: verde o
                 rojo se lee de un vistazo, sin tener que interpretar un número. */}
-            {pelicula.tomatometer !== null ? (
+            {pelicula.tomatometer != null ? (
               <span class="inline-flex items-center gap-1.5 font-semibold tabular-nums">
                 <span
                   class="size-2.5 shrink-0 rounded-full"
