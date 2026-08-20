@@ -2,6 +2,7 @@
 import Base from "../layouts/Base.astro";
 import Fila from "../components/Fila.astro";
 import Estrella from "../components/Estrella.astro";
+import Cartel from "../components/Cartel.astro";
 import Vacio from "../components/Vacio.astro";
 import { obtenerIndice, obtenerPortada } from "../lib/data";
 import { caratula, colorGenero, duracion, enlaceGenero, enlacePelicula, nombreGenero, numero } from "../lib/format";
@@ -52,23 +53,21 @@ const cartelGrande = caratula(destacada?.poster, 600);
                 class="absolute inset-0 -z-10 size-full scale-110 object-cover object-top blur-2xl"
               />
             )}
-            <div class="absolute inset-0 -z-10 velo"></div>
+            {cartelGrande && <div class="absolute inset-0 -z-10 velo"></div>}
 
             <div class="flex flex-col gap-6 p-6 sm:flex-row sm:items-center sm:gap-8 sm:p-10">
               <a
                 href={enlacePelicula(destacada.id)}
                 class="w-32 shrink-0 overflow-hidden rounded-xl shadow-2xl ring-1 ring-white/10 sm:w-44"
               >
-                {cartelGrande ? (
-                  <img
-                    src={caratula(destacada.poster, 400)!}
-                    alt={`Cartel de ${destacada.title}`}
-                    class="aspect-2/3 w-full object-cover"
-                    fetchpriority="high"
-                  />
-                ) : (
-                  <div class="aspect-2/3 w-full bg-[var(--color-lienzo-alt)]" />
-                )}
+                <Cartel
+                  poster={destacada.poster}
+                  titulo={destacada.title}
+                  genero={destacada.genres?.[0] ?? destacada.category}
+                  anio={destacada.year}
+                  ancho={400}
+                  prioritaria
+                />
               </a>
 
               <div class="min-w-0">

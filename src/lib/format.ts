@@ -103,15 +103,25 @@ export function enlaceGenero(clave: string, pagina = 1): string {
   return pagina > 1 ? `/genero/${clave}?p=${pagina}` : `/genero/${clave}`;
 }
 
+/** Los anchos que sirve TMDB; se elige el más ajustado por arriba. */
+const ANCHOS_TMDB = [92, 154, 185, 342, 500, 780];
+
 /**
- * Pide a IMDb la carátula del ancho que hace falta.
+ * Pide la carátula del ancho que hace falta.
  *
- * Las imágenes originales pesan cientos de kilobytes cada una y una parrilla
- * enseña treinta. El propio nombre del fichero admite instrucciones de
- * recorte, así que se piden ya servidas al tamaño en el que se van a ver.
+ * Las imágenes originales pesan cientos de kilobytes y una parrilla enseña
+ * treinta, así que se piden ya servidas al tamaño en el que se van a ver. Los
+ * dos orígenes lo permiten por URL: IMDb con instrucciones de recorte en el
+ * nombre del fichero, TMDB con un tramo de ruta por ancho.
  */
 export function caratula(url: string | null | undefined, ancho = 300): string | null {
   if (!url) return null;
+
+  if (url.includes("image.tmdb.org")) {
+    const elegido = ANCHOS_TMDB.find((valor) => valor >= ancho);
+    return url.replace(/\/t\/p\/[^/]+\//, `/t/p/${elegido ? `w${elegido}` : "original"}/`);
+  }
+
   return url.replace(/\._V1_[^./]*(\.[a-z]+)$/i, `._V1_QL75_UX${ancho}_$1`);
 }
 

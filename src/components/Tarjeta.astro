@@ -1,7 +1,8 @@
 ---
 import type { Pelicula, Tarjeta } from "../lib/types";
 import Estrella from "./Estrella.astro";
-import { caratula, duracion, enlacePelicula, nombreGenero } from "../lib/format";
+import Cartel from "./Cartel.astro";
+import { duracion, enlacePelicula, nombreGenero } from "../lib/format";
 
 type Variante = "normal" | "fila" | "lista";
 
@@ -15,8 +16,8 @@ interface Props {
 const { pelicula, variante = "normal", posicion } = Astro.props;
 
 const enlace = enlacePelicula(pelicula.id);
-const cartel = caratula(pelicula.poster, variante === "lista" ? 160 : 300);
 const generos = (pelicula.genres ?? []).slice(0, 2).map(nombreGenero);
+const generoPrincipal = pelicula.genres?.[0] ?? pelicula.category;
 const sinopsis = "plot" in pelicula ? pelicula.plot : "";
 ---
 
@@ -34,11 +35,13 @@ const sinopsis = "plot" in pelicula ? pelicula.plot : "";
         tabindex="-1"
         aria-hidden="true"
       >
-        {cartel ? (
-          <img src={cartel} alt="" loading="lazy" decoding="async" class="aspect-2/3 w-full object-cover" />
-        ) : (
-          <div class="aspect-2/3 w-full" />
-        )}
+        <Cartel
+          poster={pelicula.poster}
+          titulo={pelicula.title}
+          genero={generoPrincipal}
+          anio={pelicula.year}
+          ancho={160}
+        />
       </a>
       <div class="min-w-0 flex-1">
         <h3 class="font-display text-base font-semibold leading-tight sm:text-lg">
@@ -66,19 +69,13 @@ const sinopsis = "plot" in pelicula ? pelicula.plot : "";
         href={enlace}
         class="relative block overflow-hidden rounded-lg bg-[var(--color-lienzo-alt)] ring-1 ring-[var(--color-linea)] transition duration-300 group-hover:ring-[var(--color-marca)]"
       >
-        {cartel ? (
-          <img
-            src={cartel}
-            alt={`Cartel de ${pelicula.title}`}
-            loading="lazy"
-            decoding="async"
-            class="aspect-2/3 w-full object-cover transition duration-500 group-hover:scale-105"
-          />
-        ) : (
-          <div class="grid aspect-2/3 w-full place-items-center px-2 text-center font-display text-sm text-[var(--color-tinta-tenue)]">
-            {pelicula.title}
-          </div>
-        )}
+        <Cartel
+          poster={pelicula.poster}
+          titulo={pelicula.title}
+          genero={generoPrincipal}
+          anio={pelicula.year}
+          clase="transition duration-500 group-hover:scale-105"
+        />
 
         {posicion !== undefined && (
           <span class="absolute left-0 top-0 rounded-br-lg bg-[var(--color-fondo)]/85 px-2.5 py-1 font-display text-sm font-bold tabular-nums text-[var(--color-marca)]">

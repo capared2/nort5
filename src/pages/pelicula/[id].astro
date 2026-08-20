@@ -2,6 +2,7 @@
 import Base from "../../layouts/Base.astro";
 import Estrella from "../../components/Estrella.astro";
 import Fila from "../../components/Fila.astro";
+import Cartel from "../../components/Cartel.astro";
 import { obtenerIndice, obtenerParecidas, obtenerPelicula } from "../../lib/data";
 import {
   caratula,
@@ -31,15 +32,16 @@ const [indice, parecidas] = await Promise.all([
   obtenerParecidas(pelicula),
 ]);
 
-const cartel = caratula(pelicula.poster, 500);
+const generoPrincipal = pelicula.genres[0] ?? pelicula.category;
+
 // Si el archivo trajo fotogramas, el primero que no sea el cartel hace de
-// fondo; si no, el propio cartel ampliado.
+// fondo; si no, el propio cartel ampliado. Sin imagen ninguna, el degradado
+// del género se basta.
 const fondo = caratula(
   pelicula.images.find((imagen) => imagen.url !== pelicula.poster)?.url ?? pelicula.poster,
   900,
 );
 
-const generoPrincipal = pelicula.genres[0] ?? pelicula.category;
 const equipo = [
   { papel: "Dirección", gente: pelicula.directors },
   { papel: "Guion", gente: pelicula.writers },
@@ -87,22 +89,19 @@ const descripcion =
           />
         )
       }
-      <div class="absolute inset-0 -z-10 velo"></div>
+      {fondo && <div class="absolute inset-0 -z-10 velo"></div>}
 
       <div class="flex flex-col gap-7 sm:flex-row sm:gap-9">
         <div class="mx-auto w-40 shrink-0 sm:mx-0 sm:w-56">
-          {
-            cartel ? (
-              <img
-                src={cartel}
-                alt={`Cartel de ${pelicula.title}`}
-                class="aspect-2/3 w-full rounded-xl object-cover shadow-2xl ring-1 ring-white/10"
-                fetchpriority="high"
-              />
-            ) : (
-              <div class="aspect-2/3 w-full rounded-xl bg-[var(--color-lienzo-alt)]" />
-            )
-          }
+          <Cartel
+            poster={pelicula.poster}
+            titulo={pelicula.title}
+            genero={generoPrincipal}
+            anio={pelicula.year}
+            ancho={500}
+            prioritaria
+            clase="rounded-xl shadow-2xl ring-1 ring-white/10"
+          />
         </div>
 
         <div class="min-w-0 flex-1">
