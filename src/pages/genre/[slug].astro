@@ -11,7 +11,7 @@ import { grafoGenero } from "../../lib/seo";
 
 const POR_PAGINA = 30;
 
-const { clave = "" } = Astro.params;
+const { slug: clave = "" } = Astro.params;
 const pagina = Math.max(1, Number(Astro.url.searchParams.get("p") ?? 1) || 1);
 
 const indice = await obtenerIndice();
@@ -21,7 +21,7 @@ const lista = await obtenerGenero(clave);
 // Un género existe si el archivo tiene fichas suyas o si al menos aparece como
 // género secundario de alguna película.
 if (!entrada && !lista?.titles?.length) {
-  return new Response(null, { status: 404, statusText: "Género no encontrado" });
+  return new Response(null, { status: 404, statusText: "Genre not found" });
 }
 
 const nombre = entrada?.name || lista?.name || nombreGenero(clave);
@@ -37,13 +37,13 @@ const archivo =
 
 const titulo =
   archivo.pagina > 1
-    ? `Películas de ${nombre} · página ${archivo.pagina} | ${SITIO.nombre}`
-    : `Las mejores películas de ${nombre} | ${SITIO.nombre}`;
+    ? `${nombre} movies · page ${archivo.pagina} | ${SITIO.nombre}`
+    : `Best ${nombre} movies | ${SITIO.nombre}`;
 ---
 
 <Base
   titulo={titulo}
-  descripcion={`${numero(lista?.count ?? entrada?.titles ?? 0)} películas de ${nombre} con su nota, su sinopsis y su ficha completa.`}
+  descripcion={`${numero(lista?.count ?? entrada?.titles ?? 0)} ${nombre} movies with their scores, synopsis and full details.`}
   canonical={enlaceGenero(clave, archivo.pagina)}
   indice={indice}
   generoActivo={clave}
@@ -53,17 +53,17 @@ const titulo =
   jsonLd={grafoGenero(clave, nombre, destacadas.length ? destacadas : archivo.peliculas, archivo.pagina)}
 >
   <header class="mb-8 border-b border-[var(--color-linea)] pb-5">
-    <p class="text-xs font-bold uppercase tracking-[0.18em]" style={`color:${acento}`}>Género</p>
+    <p class="text-xs font-bold uppercase tracking-[0.18em]" style={`color:${acento}`}>Genre</p>
     <h1 class="mt-1 font-display text-4xl font-extrabold tracking-tight sm:text-5xl">{nombre}</h1>
     <p class="mt-2 text-sm text-[var(--color-tinta-tenue)]">
-      {numero(lista?.count ?? entrada?.tagged ?? 0)} películas la llevan como género
-      {archivo.pagina > 1 && ` · página ${archivo.pagina} de ${archivo.paginas}`}
+      {numero(lista?.count ?? entrada?.tagged ?? 0)} movies tagged with this genre
+      {archivo.pagina > 1 && ` · page ${archivo.pagina} of ${archivo.paginas}`}
     </p>
   </header>
 
   {
     archivo.pagina === 1 && destacadas.length > 0 && (
-      <Fila titulo={`Imprescindibles de ${nombre}`} peliculas={destacadas} numerar clase="!mt-0" />
+      <Fila titulo={`Essential ${nombre}`} peliculas={destacadas} numerar clase="!mt-0" />
     )
   }
 
@@ -72,7 +72,7 @@ const titulo =
       <section class="mt-12">
         <h2 class="mb-4 font-display text-xl font-bold tracking-tight sm:text-2xl">
           <span class="mr-2 inline-block h-5 w-1 translate-y-0.5 rounded-full" style={`background:${acento}`} />
-          Todo el archivo de {nombre}
+          The full {nombre} archive
         </h2>
         <Rejilla peliculas={archivo.peliculas} />
         <Paginacion clave={clave} pagina={archivo.pagina} paginas={archivo.paginas} />
@@ -80,8 +80,8 @@ const titulo =
     ) : (
       destacadas.length === 0 && (
         <Vacio
-          titulo={`Todavía no hay películas de ${nombre}`}
-          detalle="En cuanto la recolección traiga alguna, aparecerá aquí."
+          titulo={`No ${nombre} movies yet`}
+          detalle="As soon as one comes in, it will show up here."
         />
       )
     )

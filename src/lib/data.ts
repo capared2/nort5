@@ -59,8 +59,8 @@ function porPopularidad<T extends { votes: number | null; rating: number | null 
  * que llevar el género dentro y no se rompe si la película cambia de género.
  */
 export async function obtenerPelicula(id: string): Promise<Pelicula | null> {
-  // El identificador es el slug de Rotten Tomatoes, y va en la URL: se
-  // comprueba antes de convertirlo en una ruta de fichero.
+  // El identificador va en la URL y acaba siendo una ruta de fichero: se
+  // comprueba antes de usarlo.
   if (!/^[a-z0-9][a-z0-9_-]{0,120}$/.test(id)) return null;
 
   const rutas = await leerJson<Rutas>(`/rutas/${id.slice(-2)}.json`);

@@ -24,15 +24,15 @@ const generos = [...(indice?.genres ?? [])].sort((a, b) => b.tagged - a.tagged).
         {
           indice && (
             <p class="mt-3 text-xs text-[var(--color-tinta-tenue)]">
-              {numero(indice.total_titles)} películas en {indice.total_genres} géneros.
+              {numero(indice.total_titles)} movies across {indice.total_genres} genres.
             </p>
           )
         }
       </div>
 
-      <nav class="min-w-52" aria-label="Géneros">
+      <nav class="min-w-52" aria-label="Genres">
         <p class="mb-2 text-xs font-bold uppercase tracking-widest text-[var(--color-tinta-tenue)]">
-          Géneros
+          Genres
         </p>
         <ul class="grid grid-cols-2 gap-x-6 gap-y-1 text-sm">
           {
@@ -47,22 +47,22 @@ const generos = [...(indice?.genres ?? [])].sort((a, b) => b.tagged - a.tagged).
         </ul>
       </nav>
 
-      <nav class="min-w-32" aria-label="Secciones">
+      <nav class="min-w-32" aria-label="Sections">
         <p class="mb-2 text-xs font-bold uppercase tracking-widest text-[var(--color-tinta-tenue)]">
-          El sitio
+          This site
         </p>
         <ul class="space-y-1 text-sm">
-          <li><a href="/top" class="hover:text-[var(--color-marca)]">Mejor valoradas</a></li>
-          <li><a href="/generos" class="hover:text-[var(--color-marca)]">Todos los géneros</a></li>
-          <li><a href="/buscar" class="hover:text-[var(--color-marca)]">Buscar</a></li>
+          <li><a href="/top" class="hover:text-[var(--color-marca)]">Top rated</a></li>
+          <li><a href="/genres" class="hover:text-[var(--color-marca)]">All genres</a></li>
+          <li><a href="/search" class="hover:text-[var(--color-marca)]">Search</a></li>
           <li><a href="/rss.xml" class="hover:text-[var(--color-marca)]">RSS</a></li>
         </ul>
       </nav>
     </div>
 
     <p class="mt-8 border-t border-[var(--color-linea)] pt-5 text-xs text-[var(--color-tinta-tenue)]">
-      Los datos y las carátulas proceden de Rotten Tomatoes, que es de Fandango; {SITIO.nombre} no
-      está asociado con ellos. Cada ficha enlaza a su página de origen.
+      Data and artwork come from external sources; {SITIO.nombre} is not affiliated with any of
+      them. Scores and reviews belong to their respective owners.
     </p>
   </div>
 </footer>

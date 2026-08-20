@@ -18,14 +18,14 @@ const numeros = Array.from({ length: Math.max(0, hasta - desde + 1) }, (_, i) =>
 
 {
   paginas > 1 && (
-    <nav class="mt-10 flex flex-wrap items-center justify-center gap-2" aria-label="Paginación">
+    <nav class="mt-10 flex flex-wrap items-center justify-center gap-2" aria-label="Pagination">
       {pagina > 1 && (
         <a
           href={enlaceGenero(clave, pagina - 1)}
           rel="prev"
           class="rounded-full border border-[var(--color-linea)] px-4 py-2 text-sm font-semibold hover:border-[var(--color-marca)] hover:text-[var(--color-marca)]"
         >
-          Anterior
+          Previous
         </a>
       )}
 
@@ -50,7 +50,7 @@ const numeros = Array.from({ length: Math.max(0, hasta - desde + 1) }, (_, i) =>
           rel="next"
           class="rounded-full border border-[var(--color-linea)] px-4 py-2 text-sm font-semibold hover:border-[var(--color-marca)] hover:text-[var(--color-marca)]"
         >
-          Siguiente
+          Next
         </a>
       )}
     </nav>

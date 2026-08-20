@@ -22,7 +22,7 @@ const destacados = generos.slice(0, 10);
 
 <header class="sticky top-0 z-30 border-b border-[var(--color-linea)] bg-[var(--color-fondo)]/95 backdrop-blur">
   <div class="contenedor flex flex-wrap items-center gap-x-3 gap-y-2 py-3">
-    <a href="/" class="flex shrink-0 items-center gap-2.5" aria-label={`${SITIO.nombre}, ir al inicio`}>
+    <a href="/" class="flex shrink-0 items-center gap-2.5" aria-label={`${SITIO.nombre}, go to home`}>
       <Logo clase="size-9 text-[var(--color-marca)]" />
       <span class="flex flex-col">
         <strong class="font-display text-2xl font-extrabold leading-none tracking-tight">
@@ -39,12 +39,12 @@ const destacados = generos.slice(0, 10);
     <!-- En móvil el buscador se lleva su propia fila: apretado en la primera
          empujaba el botón de tema fuera de la pantalla. -->
     <form
-      action="/buscar"
+      action="/search"
       method="get"
       role="search"
       class="order-last w-full basis-full sm:order-none sm:ml-auto sm:w-auto sm:max-w-md sm:flex-1 sm:basis-auto"
     >
-      <label for="q" class="sr-only">Buscar películas</label>
+      <label for="q" class="sr-only">Search movies</label>
       <div class="relative">
         <svg
           class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 stroke-[var(--color-tinta-tenue)]"
@@ -61,7 +61,7 @@ const destacados = generos.slice(0, 10);
           id="q"
           name="q"
           type="search"
-          placeholder="Buscar una película…"
+          placeholder="Search for a movie…"
           autocomplete="off"
           class="w-full rounded-full border border-[var(--color-linea)] bg-[var(--color-lienzo)] py-2 pl-9 pr-4 text-sm outline-none placeholder:text-[var(--color-tinta-tenue)] focus:border-[var(--color-marca)]"
         />
@@ -72,7 +72,7 @@ const destacados = generos.slice(0, 10);
       <summary
         class="flex cursor-pointer list-none items-center gap-1.5 rounded-full border border-[var(--color-linea)] px-3.5 py-2 text-sm font-semibold hover:border-[var(--color-marca)] hover:text-[var(--color-marca)] [&::-webkit-details-marker]:hidden"
       >
-        Géneros
+        Genres
         <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
           <path d="M6 9l6 6 6-6"></path>
         </svg>
@@ -91,10 +91,10 @@ const destacados = generos.slice(0, 10);
           ))
         }
         <a
-          href="/generos"
+          href="/genres"
           class="col-span-2 mt-1 rounded-lg bg-[var(--color-lienzo-alt)] px-2.5 py-1.5 text-center text-sm font-semibold hover:text-[var(--color-marca)]"
         >
-          Todos los géneros
+          All genres
         </a>
       </div>
     </details>
@@ -102,7 +102,7 @@ const destacados = generos.slice(0, 10);
     <button
       type="button"
       id="cambiar-tema"
-      aria-label="Cambiar entre tema claro y oscuro"
+      aria-label="Switch between light and dark theme"
       class="grid size-9 shrink-0 place-items-center rounded-full border border-[var(--color-linea)] text-[var(--color-tinta-suave)] hover:border-[var(--color-marca)] hover:text-[var(--color-marca)]"
     >
       <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
@@ -114,7 +114,7 @@ const destacados = generos.slice(0, 10);
   {
     destacados.length > 0 && (
       <nav
-        aria-label="Géneros"
+        aria-label="Genres"
         data-generos
         class="contenedor carrusel-oculto flex snap-x snap-mandatory gap-1.5 overflow-x-auto pb-2 text-sm"
       >
@@ -128,7 +128,7 @@ const destacados = generos.slice(0, 10);
               : "text-[var(--color-tinta-suave)] hover:bg-[var(--color-lienzo-alt)]",
           ]}
         >
-          Inicio
+          Home
         </a>
         <a
           href="/top"
@@ -140,7 +140,7 @@ const destacados = generos.slice(0, 10);
               : "text-[var(--color-tinta-suave)] hover:bg-[var(--color-lienzo-alt)]",
           ]}
         >
-          Mejor valoradas
+          Top rated
         </a>
         {destacados.map((genero) => (
           <a

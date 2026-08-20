@@ -14,23 +14,23 @@ const [indice, resultados] = await Promise.all([
 ---
 
 <Base
-  titulo={consulta ? `«${consulta}» | ${SITIO.nombre}` : `Buscar películas | ${SITIO.nombre}`}
-  descripcion={`Busca entre las ${numero(indice?.total_titles ?? 0)} películas del catálogo de ${SITIO.nombre}.`}
-  canonical="/buscar"
+  titulo={consulta ? `“${consulta}” | ${SITIO.nombre}` : `Search movies | ${SITIO.nombre}`}
+  descripcion={`Search across the ${numero(indice?.total_titles ?? 0)} movies in the ${SITIO.nombre} catalogue.`}
+  canonical="/search"
   indice={indice}
   cache={600}
   noindex
 >
   <header class="mb-6">
-    <p class="text-xs font-bold uppercase tracking-[0.18em] text-[var(--color-marca)]">Búsqueda</p>
+    <p class="text-xs font-bold uppercase tracking-[0.18em] text-[var(--color-marca)]">Search</p>
     <h1 class="mt-1 font-display text-4xl font-extrabold tracking-tight">
-      {consulta ? `«${consulta}»` : "Buscar películas"}
+      {consulta ? `“${consulta}”` : "Search movies"}
     </h1>
     <p class="mt-1 text-sm text-[var(--color-tinta-tenue)]">
       {
         consulta
-          ? `${numero(resultados.length)} ${resultados.length === 1 ? "resultado" : "resultados"} por título`
-          : "Escribe en el buscador de la cabecera el título de una película."
+          ? `${numero(resultados.length)} ${resultados.length === 1 ? "result" : "results"} by title`
+          : "Type a movie title in the search box above."
       }
     </p>
   </header>
@@ -38,8 +38,8 @@ const [indice, resultados] = await Promise.all([
   {
     consulta && resultados.length === 0 ? (
       <Vacio
-        titulo="Sin resultados"
-        detalle="La búsqueda va por el título, original o traducido. Prueba con menos palabras, o entra por género."
+        titulo="No results"
+        detalle="Search matches titles. Try fewer words, or browse by genre."
       />
     ) : (
       resultados.length > 0 && (
@@ -55,7 +55,7 @@ const [indice, resultados] = await Promise.all([
                     {resultado.title}
                   </strong>
                   <span class="text-xs text-[var(--color-tinta-tenue)]">
-                    {resultado.year ?? "Sin fecha"} · {nombreGenero(resultado.category)}
+                    {resultado.year ?? "No date"} · {nombreGenero(resultado.category)}
                   </span>
                 </span>
                 {resultado.rating !== null && (

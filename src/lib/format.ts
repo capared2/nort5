@@ -1,6 +1,6 @@
 import { GENEROS } from "./generos";
 
-const FECHA = new Intl.DateTimeFormat("es-ES", {
+const FECHA = new Intl.DateTimeFormat("en-US", {
   day: "numeric",
   month: "long",
   year: "numeric",
@@ -15,38 +15,39 @@ export function fecha(iso: string | null): string {
 }
 
 /** 142 -> "2 h 22 min". Es como lo lee cualquiera antes de sentarse a verla. */
+/** 142 -> "2h 22m", que es como se lee una duracion antes de sentarse a verla. */
 export function duracion(minutos: number | null): string {
   if (!minutos || minutos <= 0) return "";
   const horas = Math.floor(minutos / 60);
   const resto = minutos % 60;
-  if (!horas) return `${resto} min`;
-  return resto ? `${horas} h ${resto} min` : `${horas} h`;
+  if (!horas) return `${resto}m`;
+  return resto ? `${horas}h ${resto}m` : `${horas}h`;
 }
 
 export function numero(valor: number | null | undefined): string {
-  return new Intl.NumberFormat("es-ES").format(valor ?? 0);
+  return new Intl.NumberFormat("en-US").format(valor ?? 0);
 }
 
 /** 2934567 -> "2,9 M". Los votos de una pelicula famosa no caben de otro modo. */
 export function compacto(valor: number | null | undefined): string {
   if (!valor) return "";
   if (valor < 1000) return String(valor);
-  return new Intl.NumberFormat("es-ES", {
+  return new Intl.NumberFormat("en-US", {
     notation: "compact",
     maximumFractionDigits: 1,
   }).format(valor);
 }
 
-/** 9.3 -> "9,3": una decimal siempre, que es como se enseña una nota. */
+/** 9.3 -> "9.3": una decimal siempre, que es como se enseña una nota. */
 export function nota(valor: number | null | undefined): string {
-  if (valor === null || valor === undefined) return "";
-  return valor.toFixed(1).replace(".", ",");
+  if (valor == null) return "";
+  return valor.toFixed(1);
 }
 
 export function dinero(valor: { amount: number; currency: string } | null): string {
   if (!valor?.amount) return "";
   try {
-    return new Intl.NumberFormat("es-ES", {
+    return new Intl.NumberFormat("en-US", {
       style: "currency",
       currency: valor.currency,
       maximumFractionDigits: 0,
@@ -78,21 +79,21 @@ export function claveGenero(nombre: string): string {
 }
 
 const TIPOS: Record<string, string> = {
-  movie: "Película",
-  tv: "Serie",
-  tvSeries: "Serie",
+  movie: "Movie",
+  tv: "TV series",
+  tvSeries: "TV series",
 };
 
 export function nombreTipo(tipo: string): string {
-  return TIPOS[tipo] ?? "Película";
+  return TIPOS[tipo] ?? "Movie";
 }
 
 export function enlacePelicula(id: string): string {
-  return `/pelicula/${id}`;
+  return `/movie/${id}`;
 }
 
 export function enlaceGenero(clave: string, pagina = 1): string {
-  return pagina > 1 ? `/genero/${clave}?p=${pagina}` : `/genero/${clave}`;
+  return pagina > 1 ? `/genre/${clave}?p=${pagina}` : `/genre/${clave}`;
 }
 
 /**
@@ -116,7 +117,7 @@ export function apaisada(url: string | null | undefined, ancho = 800): string | 
   return url.replace(/\/\d{2,4}x\d{2,4}\//, `/${ancho}x${alto}/`);
 }
 
-/** El color de un porcentaje de Rotten Tomatoes: fresco, regular o podrido. */
+/** El color de un porcentaje: alto, regular o bajo. */
 export function colorPorcentaje(valor: number | null | undefined): string {
   if (valor === null || valor === undefined) return "var(--color-tinta-tenue)";
   if (valor >= 60) return "#3ea72d";
@@ -126,31 +127,31 @@ export function colorPorcentaje(valor: number | null | undefined): string {
 
 /** Un acento por género, para que cada sección se reconozca de un vistazo. */
 const COLORES: Record<string, string> = {
-  accion: "#ff6b3d",
-  aventura: "#f0a028",
-  animacion: "#41b8d5",
+  action: "#ff6b3d",
+  adventure: "#f0a028",
+  animation: "#41b8d5",
   anime: "#7c9cf0",
-  biografia: "#b08bd6",
-  comedia: "#ffd23f",
-  crimen: "#e0574d",
-  documental: "#6ab7a8",
+  biography: "#b08bd6",
+  comedy: "#ffd23f",
+  crime: "#e0574d",
+  documentary: "#6ab7a8",
   drama: "#e08fb0",
-  fantasia: "#a78bfa",
-  historia: "#c9a227",
-  navidad: "#e05252",
-  terror: "#d64545",
-  "infantil-y-familiar": "#7ec4a0",
+  fantasy: "#a78bfa",
+  history: "#c9a227",
+  holiday: "#e05252",
+  horror: "#d64545",
+  "kids-family": "#7ec4a0",
   lgbtq: "#f471b5",
-  musica: "#f471b5",
+  music: "#f471b5",
   musical: "#f9a8d4",
-  "misterio-y-suspense": "#7c9cf0",
-  naturaleza: "#5eb85e",
+  "mystery-thriller": "#7c9cf0",
+  nature: "#5eb85e",
   romance: "#ff8fa3",
-  "ciencia-ficcion": "#4fd1c5",
-  cortometraje: "#9ca3af",
-  deporte: "#5eb85e",
-  monologos: "#ffd23f",
-  belico: "#a68a64",
+  "sci-fi": "#4fd1c5",
+  short: "#9ca3af",
+  sports: "#5eb85e",
+  "stand-up": "#ffd23f",
+  war: "#a68a64",
   western: "#c98b5a",
 };
 

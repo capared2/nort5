@@ -12,8 +12,8 @@ const peliculas = portada?.mejor_valoradas ?? [];
 ---
 
 <Base
-  titulo={`Las mejores películas de la historia | ${SITIO.nombre}`}
-  descripcion="El ranking de las películas mejor valoradas del catálogo, contando solo las que tienen votos suficientes para sostener la nota."
+  titulo={`Best rated movies | ${SITIO.nombre}`}
+  descripcion="The best rated movies in the catalogue, counting only those with enough votes to back the score."
   canonical="/top"
   indice={indice}
   generoActivo="top"
@@ -23,20 +23,20 @@ const peliculas = portada?.mejor_valoradas ?? [];
   <header class="mb-8 border-b border-[var(--color-linea)] pb-5">
     <p class="text-xs font-bold uppercase tracking-[0.18em] text-[var(--color-marca)]">Ranking</p>
     <h1 class="mt-1 font-display text-4xl font-extrabold tracking-tight sm:text-5xl">
-      Mejor valoradas
+      Top rated
     </h1>
     <p class="mt-2 max-w-2xl text-sm text-[var(--color-tinta-tenue)]">
-      Ordenadas por nota. Solo entran las que pasan de 25.000 votos: una película con cuarenta
-      votos y un 9,4 no compite con las de aquí.
-      {indice && ` Sobre un catálogo de ${numero(indice.total_titles)} películas.`}
+      Sorted by score. Only movies past 25,000 votes make the cut: one with forty votes and a
+      9.4 is not competing with these.
+      {indice && ` Out of a catalogue of ${numero(indice.total_titles)} movies.`}
     </p>
   </header>
 
   {
     peliculas.length === 0 ? (
       <Vacio
-        titulo="El ranking está vacío"
-        detalle="Hace falta que la recolección traiga películas con votos suficientes."
+        titulo="The ranking is empty"
+        detalle="It needs movies with enough votes to come in first."
       />
     ) : (
       <ol>

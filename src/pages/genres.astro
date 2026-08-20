@@ -14,18 +14,18 @@ const mayor = generos[0]?.tagged ?? 1;
 ---
 
 <Base
-  titulo={`Todos los géneros de cine | ${SITIO.nombre}`}
-  descripcion={`Los ${generos.length} géneros del catálogo, de la comedia al cine negro, con todas sus películas.`}
-  canonical="/generos"
+  titulo={`All movie genres | ${SITIO.nombre}`}
+  descripcion={`All ${generos.length} genres in the catalogue, from comedy to horror, with every movie in each.`}
+  canonical="/genres"
   indice={indice}
   cache={7200}
   jsonLd={grafoGeneros(indice)}
 >
   <header class="mb-8 border-b border-[var(--color-linea)] pb-5">
-    <p class="text-xs font-bold uppercase tracking-[0.18em] text-[var(--color-marca)]">Catálogo</p>
-    <h1 class="mt-1 font-display text-4xl font-extrabold tracking-tight sm:text-5xl">Géneros</h1>
+    <p class="text-xs font-bold uppercase tracking-[0.18em] text-[var(--color-marca)]">Catalogue</p>
+    <h1 class="mt-1 font-display text-4xl font-extrabold tracking-tight sm:text-5xl">Genres</h1>
     <p class="mt-2 text-sm text-[var(--color-tinta-tenue)]">
-      {numero(indice?.total_titles ?? 0)} películas repartidas en {generos.length} géneros.
+      {numero(indice?.total_titles ?? 0)} movies across {generos.length} genres.
     </p>
   </header>
 

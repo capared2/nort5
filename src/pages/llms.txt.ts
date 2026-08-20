@@ -7,8 +7,8 @@ import { enlaceGenero } from "../lib/format";
  * Un resumen del sitio para modelos de lenguaje.
  *
  * Es el equivalente de robots.txt para quien lee para responder, no para
- * indexar: dice qué hay aquí, cómo están organizadas las páginas y de dónde
- * salen los datos, sin que haya que deducirlo del HTML.
+ * indexar: dice qué hay aquí y cómo están organizadas las páginas, sin que
+ * haya que deducirlo del HTML.
  */
 export const GET: APIRoute = async () => {
   const indice = await obtenerIndice();
@@ -18,26 +18,25 @@ export const GET: APIRoute = async () => {
 
 > ${SITIO.descripcion}
 
-${SITIO.nombre} es un agregador de películas. Cada ficha reúne la nota, el número
-de opiniones, la sinopsis, el reparto, la duración y dónde verla, y
-enlaza a su página de origen en Rotten Tomatoes, que es de donde se recogen.
+${SITIO.nombre} is a movie aggregator. Each entry gathers the critics and
+audience scores, the number of reviews, the synopsis, the cast, the runtime and
+where the film can be watched. Data is compiled from external sources.
 
-- Catálogo: ${indice?.total_titles ?? 0} películas en ${generos.length} géneros.
-- Actualizado: ${indice?.generated_at ?? "sin datos"}.
-- Origen de los datos: rottentomatoes.com (recogidos por https://github.com/capared2/nort5bat).
+- Catalogue: ${indice?.total_titles ?? 0} movies across ${generos.length} genres.
+- Last updated: ${indice?.generated_at ?? "no data"}.
 
-## Cómo están organizadas las páginas
+## How the pages are organised
 
-- ${absoluta("/")} — destacadas, mejor valoradas, estrenos y clásicos.
-- ${absoluta("/pelicula/{id}")} — ficha de una película; {id} es su identificador en Rotten Tomatoes (p. ej. the_godfather).
-- ${absoluta("/genero/{género}")} — todas las películas de un género, paginadas con ?p=N.
-- ${absoluta("/generos")} — el listado de géneros.
-- ${absoluta("/top")} — ranking por nota, solo con las que tienen público suficiente.
-- ${absoluta("/buscar?q={consulta}")} — búsqueda por título.
+- ${absoluta("/")} — featured, trending, top rated, new releases and classics.
+- ${absoluta("/movie/{id}")} — a single movie; {id} is its catalogue identifier (e.g. the_godfather).
+- ${absoluta("/genre/{genre}")} — every movie in a genre, paginated with ?p=N.
+- ${absoluta("/genres")} — the list of genres.
+- ${absoluta("/top")} — ranked by score, only movies with enough votes behind them.
+- ${absoluta("/search?q={query}")} — search by title.
 
-## Géneros
+## Genres
 
-${generos.map((genero) => `- [${genero.name}](${absoluta(enlaceGenero(genero.genre))}): ${genero.tagged} películas`).join("\n")}
+${generos.map((genero) => `- [${genero.name}](${absoluta(enlaceGenero(genero.genre))}): ${genero.tagged} movies`).join("\n")}
 `;
 
   return new Response(cuerpo, {

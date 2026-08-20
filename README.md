@@ -1,7 +1,10 @@
 # nort5 — agregador de películas
 
-Frontend de **nort5.com**: reúne miles de películas, las ordena por género y
-enlaza cada ficha a su página de origen en Rotten Tomatoes.
+Frontend de **nort5.com**: reúne miles de películas y las ordena por género.
+
+**El sitio está en inglés**, porque los datos lo están: títulos, sinopsis y
+géneros vienen así de origen, y traducir solo las etiquetas dejaba una mezcla
+peor que no traducir.
 
 Hecho con **Astro 7 + TypeScript + Tailwind 4**, renderizado en el servidor
 sobre **Cloudflare Workers**.
@@ -58,11 +61,11 @@ archivo entero**.
 | Ruta | Qué es |
 | --- | --- |
 | `/` | destacada, lo más visto, mejor valoradas, estrenos y clásicos |
-| `/pelicula/{id}` | ficha completa; `{id}` es el identificador en Rotten Tomatoes (p. ej. `the_godfather`) |
-| `/genero/{género}` | imprescindibles del género y su archivo, paginado con `?p=N` |
-| `/generos` | todos los géneros, con su peso en el catálogo |
+| `/movie/{id}` | ficha completa; `{id}` es el identificador de la película |
+| `/genre/{género}` | imprescindibles del género y su archivo, paginado con `?p=N` |
+| `/genres` | todos los géneros, con su peso en el catálogo |
 | `/top` | ranking por nota, solo con las que superan los 25.000 votos |
-| `/buscar?q=` | búsqueda por título, original o traducido |
+| `/search?q=` | búsqueda por título |
 | `/rss.xml`, `/robots.txt`, `/llms.txt`, `/sitemap*.xml` | lo que consumen buscadores y modelos |
 
 La dirección de una película es solo su identificador, sin el género: una
@@ -88,11 +91,33 @@ Todo sale del propio dataset, sin nada que mantener a mano:
 - **Sitemaps**: los genera la recolección, con la carátula de cada película
   incluida para entrar en Google Imágenes; aquí solo se sirven.
 
+## El tráiler se ve aquí
+
+La ficha reproduce el tráiler en la propia página, sin mandar a nadie fuera. Se
+sirve en HLS: el MP4 que ofrece la plataforma de vídeo es el máster y pesa casi
+un giga por tráiler, mientras que la lista HLS son dos kilobytes y el
+reproductor va pidiendo solo los trozos que se ven.
+
+Ni el vídeo ni el reproductor se cargan hasta que alguien le da al play —
+`hls.js` queda en su propio trozo del build—, y en Safari ni siquiera hace
+falta, porque reproduce HLS de serie.
+
+## Nada de mandar la visita a otro sitio
+
+El sitio enseña la información y se queda con ella: no hay enlaces a la fuente,
+ni a las plataformas donde ver la película. Los servicios de «Where to watch»
+se nombran, pero no se enlazan. Tampoco se nombra la fuente en ningún sitio
+visible: la atribución dice «external sources», que es lo que hay que decir.
+
 ## Diseño
 
 Oscuro de partida, porque el cine se ve a oscuras, con un único color fuerte
 —el ámbar de la sala— para notas, acentos y botones. Hay tema claro detrás del
 botón de la cabecera; la preferencia se guarda en el navegador.
+
+Las filas de películas se arrastran con el dedo, y en escritorio tienen flechas
+que se apagan solas al llegar a cada extremo: sin ellas, con ratón no había
+forma de moverlas.
 
 Las carátulas se piden ya servidas al ancho en el que se van a ver: el
 redimensionador de Flixster lleva la medida en la propia ruta, y una parrilla
@@ -119,5 +144,5 @@ DATASET_BASE_URL=http://127.0.0.1:8787 npm run dev
 
 ## Origen de los datos
 
-Las fichas y las carátulas proceden de Rotten Tomatoes, que es de Fandango.
-nort5 no está asociado con ellos y cada ficha enlaza a su página de origen.
+Las fichas, las carátulas y los tráilers proceden de fuentes externas. nort5 no
+está asociado con ninguna de ellas.

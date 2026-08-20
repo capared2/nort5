@@ -33,7 +33,7 @@ export function sitioWeb() {
       "@type": "SearchAction",
       target: {
         "@type": "EntryPoint",
-        urlTemplate: absoluta("/buscar?q={search_term_string}"),
+        urlTemplate: absoluta("/search?q={search_term_string}"),
       },
       "query-input": "required name=search_term_string",
     },
@@ -98,8 +98,6 @@ export function peliculaJsonLd(pelicula: Pelicula) {
             worstRating: 1,
           }
         : undefined,
-    // Los datos son de Rotten Tomatoes: decirlo también aquí, no solo en el pie.
-    sameAs: pelicula.url,
     // Para asistentes de voz y respuestas generadas: qué leer en alto si
     // alguien pregunta por esta película.
     speakable: {
@@ -144,8 +142,8 @@ export function grafoPortada(peliculas: Tarjeta[]) {
       description: SITIO.descripcion,
       inLanguage: SITIO.idioma,
       isPartOf: { "@id": absoluta("/#sitio") },
-      about: { "@type": "Thing", name: "Cine" },
-      mainEntity: listado(peliculas, "Películas destacadas"),
+      about: { "@type": "Thing", name: "Movies" },
+      mainEntity: listado(peliculas, "Featured movies"),
     },
   ];
 }
@@ -156,20 +154,20 @@ export function grafoGenero(clave: string, nombre: string, peliculas: (Tarjeta |
     organizacion(),
     sitioWeb(),
     migas([
-      { nombre: "Inicio", ruta: "/" },
-      { nombre: "Géneros", ruta: "/generos" },
+      { nombre: "Home", ruta: "/" },
+      { nombre: "Genres", ruta: "/genres" },
       { nombre, ruta: enlaceGenero(clave) },
     ]),
     {
       "@type": "CollectionPage",
       "@id": `${url}#coleccion`,
       url,
-      name: `Películas de ${nombre}`,
-      description: `Las mejores películas de ${nombre}, con su nota, su sinopsis y su ficha completa.`,
+      name: `${nombre} movies`,
+      description: `The best ${nombre} movies, with scores, synopsis and full details.`,
       inLanguage: SITIO.idioma,
       isPartOf: { "@id": absoluta("/#sitio") },
       about: { "@type": "Thing", name: nombre },
-      mainEntity: listado(peliculas, `Películas de ${nombre}`),
+      mainEntity: listado(peliculas, `${nombre} movies`),
     },
   ];
 }
@@ -179,14 +177,14 @@ export function grafoGeneros(indice: Indice | null) {
     organizacion(),
     sitioWeb(),
     migas([
-      { nombre: "Inicio", ruta: "/" },
-      { nombre: "Géneros", ruta: "/generos" },
+      { nombre: "Home", ruta: "/" },
+      { nombre: "Genres", ruta: "/genres" },
     ]),
     {
       "@type": "CollectionPage",
-      "@id": absoluta("/generos#coleccion"),
-      url: absoluta("/generos"),
-      name: "Todos los géneros",
+      "@id": absoluta("/genres#coleccion"),
+      url: absoluta("/genres"),
+      name: "All genres",
       inLanguage: SITIO.idioma,
       isPartOf: { "@id": absoluta("/#sitio") },
       hasPart: (indice?.genres ?? []).map((genero: EntradaGenero) => ({
@@ -204,8 +202,8 @@ export function grafoPelicula(pelicula: Pelicula) {
     organizacion(),
     sitioWeb(),
     migas([
-      { nombre: "Inicio", ruta: "/" },
-      { nombre: "Géneros", ruta: "/generos" },
+      { nombre: "Home", ruta: "/" },
+      { nombre: "Genres", ruta: "/genres" },
       { nombre: nombreGenero(principal), ruta: enlaceGenero(claveGenero(principal)) },
       { nombre: pelicula.title, ruta: enlacePelicula(pelicula.id) },
     ]),
@@ -218,17 +216,17 @@ export function grafoTop(peliculas: Tarjeta[]) {
     organizacion(),
     sitioWeb(),
     migas([
-      { nombre: "Inicio", ruta: "/" },
-      { nombre: "Mejor valoradas", ruta: "/top" },
+      { nombre: "Home", ruta: "/" },
+      { nombre: "Top rated", ruta: "/top" },
     ]),
     {
       "@type": "CollectionPage",
       "@id": absoluta("/top#coleccion"),
       url: absoluta("/top"),
-      name: "Las películas mejor valoradas",
+      name: "Best rated movies",
       inLanguage: SITIO.idioma,
       isPartOf: { "@id": absoluta("/#sitio") },
-      mainEntity: listado(peliculas, "Películas mejor valoradas"),
+      mainEntity: listado(peliculas, "Best rated movies"),
     },
   ];
 }

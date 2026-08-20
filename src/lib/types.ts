@@ -23,6 +23,15 @@ export interface DondeVerla {
   url: string;
 }
 
+/** Lo que hace falta para reproducir el tráiler sin salir del sitio. */
+export interface Trailer {
+  id: string;
+  title: string;
+  thumbnail: string | null;
+  seconds: number | null;
+  src: string;
+}
+
 /** Ficha completa, tal y como la guarda el scraper. */
 export interface Pelicula {
   id: string;
@@ -52,7 +61,7 @@ export interface Pelicula {
   tagline: string;
   poster: string | null;
   images: Imagen[];
-  trailer: string | null;
+  trailer: Trailer | null;
   directors: Persona[];
   writers: Persona[];
   cast: Interprete[];

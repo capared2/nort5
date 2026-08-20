@@ -18,7 +18,7 @@ export const GET: APIRoute = async () => {
     .map((pelicula) => {
       const url = absoluta(enlacePelicula(pelicula.id));
       const generos = pelicula.genres.map(nombreGenero).join(", ");
-      const descripcion = [pelicula.plot, generos && `Género: ${generos}`]
+      const descripcion = [pelicula.plot, generos && `Genre: ${generos}`]
         .filter(Boolean)
         .join(" · ");
       return `    <item>
@@ -34,7 +34,7 @@ export const GET: APIRoute = async () => {
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>${escapar(SITIO.nombre)} · novedades</title>
+    <title>${escapar(SITIO.nombre)} · new releases</title>
     <link>${SITIO.dominio}</link>
     <description>${escapar(SITIO.descripcion)}</description>
     <language>${SITIO.idioma}</language>

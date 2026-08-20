@@ -35,7 +35,7 @@ const grande = ancho >= 400;
   imagen ? (
     <img
       src={imagen}
-      alt={`Cartel de ${titulo}`}
+      alt={`${titulo} poster`}
       loading={prioritaria ? "eager" : "lazy"}
       decoding="async"
       fetchpriority={prioritaria ? "high" : undefined}

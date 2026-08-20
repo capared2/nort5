@@ -4,6 +4,7 @@ import Estrella from "../../components/Estrella.astro";
 import Fila from "../../components/Fila.astro";
 import Cartel from "../../components/Cartel.astro";
 import Porcentaje from "../../components/Porcentaje.astro";
+import Trailer from "../../components/Trailer.astro";
 import { obtenerIndice, obtenerParecidas, obtenerPelicula } from "../../lib/data";
 import {
   caratula,
@@ -43,30 +44,30 @@ const fondo = caratula(
 );
 
 const equipo = [
-  { papel: "Dirección", gente: pelicula.directors },
-  { papel: "Guion", gente: pelicula.writers },
+  { papel: "Directed by", gente: pelicula.directors },
+  { papel: "Written by", gente: pelicula.writers },
 ].filter((bloque) => bloque.gente.length > 0);
 
 const ficha = [
-  { campo: "Estreno", valor: fecha(pelicula.release_date) },
-  { campo: "Duración", valor: duracion(pelicula.runtime_minutes) },
-  { campo: "País", valor: pelicula.countries.join(", ") },
-  { campo: "Idioma", valor: pelicula.languages.join(", ") },
-  { campo: "Productora", valor: pelicula.companies.join(", ") },
-  { campo: "Presupuesto", valor: dinero(pelicula.budget) },
-  { campo: "Recaudación", valor: dinero(pelicula.gross_worldwide) },
+  { campo: "Released", valor: fecha(pelicula.release_date) },
+  { campo: "Runtime", valor: duracion(pelicula.runtime_minutes) },
+  { campo: "Country", valor: pelicula.countries.join(", ") },
+  { campo: "Language", valor: pelicula.languages.join(", ") },
+  { campo: "Production", valor: pelicula.companies.join(", ") },
+  { campo: "Budget", valor: dinero(pelicula.budget) },
+  { campo: "Box office", valor: dinero(pelicula.gross_worldwide) },
 ].filter((linea) => linea.valor);
 
 const titulo = pelicula.year ? `${pelicula.title} (${pelicula.year})` : pelicula.title;
 const descripcion =
   pelicula.plot ||
-  `Ficha de ${titulo}: nota, reparto, duración y todo lo que hay que saber antes de verla.`;
+  `${titulo}: scores, cast, runtime and everything worth knowing before watching it.`;
 ---
 
 <Base
   titulo={`${titulo} · ${SITIO.nombre}`}
   descripcion={descripcion.slice(0, 300)}
-  canonical={`/pelicula/${pelicula.id}`}
+  canonical={`/movie/${pelicula.id}`}
   indice={indice}
   generoActivo={claveGenero(generoPrincipal)}
   imagen={pelicula.poster}
@@ -114,7 +115,7 @@ const descripcion =
           {
             pelicula.original_title !== pelicula.title && (
               <p class="mt-1 text-sm text-[var(--color-tinta-tenue)]">
-                Título original: <em>{pelicula.original_title}</em>
+                Original title: <em>{pelicula.original_title}</em>
               </p>
             )
           }
@@ -122,14 +123,14 @@ const descripcion =
           <p class="mt-4 flex flex-wrap items-center gap-x-5 gap-y-3">
             <Porcentaje
               valor={pelicula.tomatometer}
-              etiqueta="Críticos"
+              etiqueta="Critics"
               cuantos={pelicula.tomatometer_count}
               certificado={pelicula.tomatometer_certified}
               tamano="grande"
             />
             <Porcentaje
               valor={pelicula.audience_score}
-              etiqueta="Público"
+              etiqueta="Audience"
               cuantos={pelicula.audience_count}
               tamano="grande"
             />
@@ -191,42 +192,30 @@ const descripcion =
             )
           }
 
-          <p class="mt-6 flex flex-wrap gap-3">
-            {
-              pelicula.trailer && (
-                <a
-                  href={pelicula.trailer}
-                  rel="noopener nofollow"
-                  target="_blank"
-                  class="inline-flex items-center gap-2 rounded-full bg-[var(--color-marca)] px-5 py-2.5 text-sm font-bold text-[#10131a] hover:bg-[var(--color-marca-oscuro)]"
-                >
-                  <svg class="size-4 fill-current" viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M8 5.5v13l11-6.5-11-6.5z" />
-                  </svg>
-                  Ver el tráiler
-                </a>
-              )
-            }
-            <a
-              href={pelicula.url}
-              rel="noopener nofollow"
-              target="_blank"
-              class="inline-flex items-center gap-2 rounded-full border border-[var(--color-linea)] px-5 py-2.5 text-sm font-semibold hover:border-[var(--color-marca)] hover:text-[var(--color-marca)]"
-            >
-              Ficha en Rotten Tomatoes
-              <span aria-hidden="true">↗</span>
-            </a>
-          </p>
         </div>
       </div>
     </div>
+
+    {
+      pelicula.trailer && (
+        <section class="mt-12">
+          <h2 class="mb-4 font-display text-xl font-bold tracking-tight sm:text-2xl">
+            <span class="mr-2 inline-block h-5 w-1 translate-y-0.5 rounded-full bg-[var(--color-marca)]" />
+            Trailer
+          </h2>
+          <div class="max-w-3xl">
+            <Trailer trailer={pelicula.trailer} titulo={pelicula.title} />
+          </div>
+        </section>
+      )
+    }
 
     {
       pelicula.cast.length > 0 && (
         <section class="mt-12">
           <h2 class="mb-4 font-display text-xl font-bold tracking-tight sm:text-2xl">
             <span class="mr-2 inline-block h-5 w-1 translate-y-0.5 rounded-full bg-[var(--color-marca)]" />
-            Reparto
+            Cast
           </h2>
           <ul class="carrusel -mx-5 px-5">
             {pelicula.cast.map((quien) => (
@@ -262,18 +251,15 @@ const descripcion =
         <section class="mt-12">
           <h2 class="mb-4 font-display text-xl font-bold tracking-tight sm:text-2xl">
             <span class="mr-2 inline-block h-5 w-1 translate-y-0.5 rounded-full bg-[var(--color-marca)]" />
-            Dónde verla
+            Where to watch
           </h2>
+          {/* Se nombran los servicios, pero no se enlazan: la idea es enseñar
+              la información, no mandar la visita a otro sitio. */}
           <p class="flex flex-wrap gap-2">
             {pelicula.streaming.map((sitio) => (
-              <a
-                href={sitio.url}
-                rel="noopener nofollow"
-                target="_blank"
-                class="rounded-full border border-[var(--color-linea)] bg-[var(--color-lienzo)] px-4 py-2 text-sm font-semibold hover:border-[var(--color-marca)] hover:text-[var(--color-marca)]"
-              >
-                {sitio.name} <span aria-hidden="true">↗</span>
-              </a>
+              <span class="rounded-full border border-[var(--color-linea)] bg-[var(--color-lienzo)] px-4 py-2 text-sm font-semibold">
+                {sitio.name}
+              </span>
             ))}
           </p>
         </section>
@@ -285,7 +271,7 @@ const descripcion =
         <section class="mt-12">
           <h2 class="mb-4 font-display text-xl font-bold tracking-tight sm:text-2xl">
             <span class="mr-2 inline-block h-5 w-1 translate-y-0.5 rounded-full bg-[var(--color-marca)]" />
-            Detalles
+            Details
           </h2>
           <dl class="grid gap-x-8 gap-y-3 rounded-xl border border-[var(--color-linea)] bg-[var(--color-lienzo)] p-5 sm:grid-cols-2">
             {ficha.map((linea) => (
@@ -311,11 +297,11 @@ const descripcion =
       )
     }
 
-    <Fila titulo="Si te gustó, sigue por aquí" peliculas={parecidas} enlace={enlaceGenero(claveGenero(generoPrincipal))} />
+    <Fila titulo="More like this" peliculas={parecidas} enlace={enlaceGenero(claveGenero(generoPrincipal))} />
 
     <p class="mt-10 text-xs text-[var(--color-tinta-tenue)]">
-      Ficha recogida de Rotten Tomatoes{pelicula.scraped_at && ` el ${fecha(pelicula.scraped_at)}`}.
-      {pelicula.votes ? ` Las notas y los ${numero(pelicula.votes)} votos son suyos.` : ""}
+      Details gathered from external sources{pelicula.scraped_at && ` on ${fecha(pelicula.scraped_at)}`}.
+      {pelicula.votes ? ` Scores and ${numero(pelicula.votes)} votes come from them.` : ""}
     </p>
   </article>
 </Base>

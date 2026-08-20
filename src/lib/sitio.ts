@@ -2,15 +2,15 @@
 export const SITIO = {
   nombre: "nort5",
   dominio: "https://nort5.com",
-  titulo: "nort5 · El cine, ordenado",
-  // Corto a propósito: entero no cabe en la cabecera de un móvil sin recortarse.
-  lema: "Agregador de películas",
+  titulo: "nort5 · Movies, sorted",
+  // Corto a proposito: entero no cabe en la cabecera de un movil sin recortarse.
+  lema: "Movie aggregator",
   descripcion:
-    "Miles de películas reunidas en un solo sitio: nota, sinopsis, reparto y ficha completa, " +
-    "ordenadas por género y actualizadas cada pocas horas.",
-  idioma: "es",
-  locale: "es_ES",
-  pais: "ES",
+    "Thousands of movies in one place: scores, synopsis, cast and full details, " +
+    "sorted by genre and refreshed every few hours.",
+  idioma: "en",
+  locale: "en_US",
+  pais: "US",
 } as const;
 
 /** Convierte una ruta del sitio en URL absoluta, que es lo que piden los buscadores. */

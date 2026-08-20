@@ -22,10 +22,10 @@ const cartelGrande = caratula(destacada?.poster, 600);
 ---
 
 <Base
-  titulo={`${SITIO.titulo} · ${numero(indice?.total_titles ?? 0)} películas`}
+  titulo={`${SITIO.titulo} · ${numero(indice?.total_titles ?? 0)} movies`}
   descripcion={
     indice
-      ? `${numero(indice.total_titles)} películas reunidas y ordenadas por género: nota, sinopsis, reparto y ficha completa de cada una.`
+      ? `${numero(indice.total_titles)} movies gathered and sorted by genre: scores, synopsis, cast and full details for each one.`
       : SITIO.descripcion
   }
   canonical="/"
@@ -36,8 +36,8 @@ const cartelGrande = caratula(destacada?.poster, 600);
   {
     populares.length === 0 ? (
       <Vacio
-        titulo="Todavía no hay películas"
-        detalle="En cuanto la recolección traiga las primeras fichas aparecerán aquí, ordenadas por género."
+        titulo="No movies yet"
+        detalle="As soon as the first records come in they will show up here, sorted by genre."
       />
     ) : (
       <>
@@ -72,7 +72,7 @@ const cartelGrande = caratula(destacada?.poster, 600);
 
               <div class="min-w-0">
                 <p class="text-xs font-bold uppercase tracking-[0.18em] text-[var(--color-marca)]">
-                  Lo más visto ahora
+                  Trending now
                 </p>
                 <h1 class="mt-2 font-display text-3xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl">
                   <a href={enlacePelicula(destacada.id)} class="hover:text-[var(--color-marca)]">
@@ -97,7 +97,7 @@ const cartelGrande = caratula(destacada?.poster, 600);
                     href={enlacePelicula(destacada.id)}
                     class="inline-flex items-center gap-2 rounded-full bg-[var(--color-marca)] px-5 py-2.5 text-sm font-bold text-[#10131a] hover:bg-[var(--color-marca-oscuro)]"
                   >
-                    Ver la ficha
+                    See details
                     <span aria-hidden="true">›</span>
                   </a>
                 </p>
@@ -106,21 +106,21 @@ const cartelGrande = caratula(destacada?.poster, 600);
           </section>
         )}
 
-        <Fila titulo="Lo más visto" peliculas={resto} enlace="/top" />
+        <Fila titulo="Trending" peliculas={resto} enlace="/top" />
         <Fila
-          titulo="Mejor valoradas"
+          titulo="Top rated"
           peliculas={portada?.mejor_valoradas ?? []}
           enlace="/top"
           numerar
         />
-        <Fila titulo="Estrenos recientes" peliculas={portada?.recientes ?? []} />
-        <Fila titulo="Clásicos que aguantan" peliculas={portada?.clasicos ?? []} />
+        <Fila titulo="New releases" peliculas={portada?.recientes ?? []} />
+        <Fila titulo="Classics that hold up" peliculas={portada?.clasicos ?? []} />
 
         {generos.length > 0 && (
           <section class="mt-12">
             <h2 class="mb-3 font-display text-xl font-bold tracking-tight sm:text-2xl">
               <span class="mr-2 inline-block h-5 w-1 translate-y-0.5 rounded-full bg-[var(--color-marca)]" />
-              Por género
+              Browse by genre
             </h2>
             <div class="flex flex-wrap gap-2">
               {generos.map((genero) => (

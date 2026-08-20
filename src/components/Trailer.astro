@@ -1,0 +1,110 @@
+---
+import type { Trailer } from "../lib/types";
+import { apaisada, duracion } from "../lib/format";
+
+interface Props {
+  trailer: Trailer;
+  titulo: string;
+}
+
+const { trailer, titulo } = Astro.props;
+const miniatura = apaisada(trailer.thumbnail, 960);
+const minutos = trailer.seconds ? duracion(Math.round(trailer.seconds / 60)) : "";
+---
+
+<!-- Ni el vídeo ni su reproductor se cargan hasta que se pide: una ficha con
+     el tráiler precargado son varios megas que casi nadie llega a ver. -->
+<figure
+  class="group relative overflow-hidden rounded-xl border border-[var(--color-linea)] bg-black"
+  data-trailer
+  data-src={trailer.src}
+>
+  <button
+    type="button"
+    class="relative block w-full cursor-pointer"
+    data-reproducir
+    aria-label={`Play trailer for ${titulo}`}
+  >
+    {
+      miniatura ? (
+        <img
+          src={miniatura}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          class="aspect-video w-full object-cover transition duration-500 group-hover:scale-[1.02]"
+        />
+      ) : (
+        <span class="block aspect-video w-full bg-[var(--color-lienzo-alt)]" />
+      )
+    }
+    <span class="absolute inset-0 grid place-items-center bg-black/25 transition group-hover:bg-black/10">
+      <span class="grid size-16 place-items-center rounded-full bg-[var(--color-marca)] shadow-xl">
+        <svg class="ml-1 size-7 fill-[#10131a]" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M8 5.5v13l11-6.5-11-6.5z"></path>
+        </svg>
+      </span>
+    </span>
+  </button>
+
+  <figcaption class="flex flex-wrap items-center gap-x-3 px-4 py-3 text-sm">
+    <span class="font-semibold">{trailer.title || "Trailer"}</span>
+    {minutos && <span class="text-[var(--color-tinta-tenue)]">{minutos}</span>}
+  </figcaption>
+</figure>
+
+<script>
+  // hls.js se pide solo cuando alguien le da al play: son bastantes kilobytes
+  // y la mayoría de las visitas no llegan a ver el tráiler.
+  document.querySelectorAll("[data-trailer]").forEach((caja) => {
+    const boton = caja.querySelector("[data-reproducir]");
+    if (!(caja instanceof HTMLElement) || !boton) return;
+
+    const fallar = (donde: Element, motivo: string) => {
+      const aviso = document.createElement("p");
+      aviso.className = "px-4 py-3 text-sm text-[var(--color-tinta-tenue)]";
+      aviso.textContent = motivo;
+      donde.replaceWith(aviso);
+    };
+
+    boton.addEventListener("click", async () => {
+      const fuente = caja.dataset.src;
+      if (!fuente) return;
+
+      const video = document.createElement("video");
+      video.controls = true;
+      video.autoplay = true;
+      video.playsInline = true;
+      video.className = "aspect-video w-full bg-black";
+      boton.replaceWith(video);
+
+      const noDisponible = "This trailer is not available right now.";
+      video.addEventListener("error", () => fallar(video, noDisponible));
+
+      // Safari reproduce HLS de serie; el resto necesita el reproductor.
+      if (video.canPlayType("application/vnd.apple.mpegurl")) {
+        video.src = fuente;
+        return;
+      }
+
+      try {
+        const { default: Hls } = await import("hls.js");
+        if (!Hls.isSupported()) {
+          fallar(video, noDisponible);
+          return;
+        }
+        const reproductor = new Hls({ capLevelToPlayerSize: true });
+        reproductor.on(Hls.Events.ERROR, (_evento, dato) => {
+          if (dato.fatal) {
+            reproductor.destroy();
+            fallar(video, noDisponible);
+          }
+        });
+        reproductor.loadSource(fuente);
+        reproductor.attachMedia(video);
+      } catch {
+        fallar(video, noDisponible);
+      }
+    });
+  });
+</script>

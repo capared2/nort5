@@ -26,22 +26,69 @@ const { titulo, peliculas, enlace, numerar = false, clase = "" } = Astro.props;
             href={enlace}
             class="shrink-0 text-sm font-semibold text-[var(--color-tinta-suave)] hover:text-[var(--color-marca)]"
           >
-            Ver todas <span aria-hidden="true">›</span>
+            See all <span aria-hidden="true">›</span>
           </a>
         )}
       </header>
 
-      <!-- Se arrastra con el dedo en móvil y con la rueda en escritorio; sin
-           flechas, que en una fila de carátulas estorban más de lo que ayudan. -->
-      <div class="carrusel -mx-5 px-5">
-        {peliculas.map((pelicula, indice) => (
-          <TarjetaPelicula
-            pelicula={pelicula}
-            variante="fila"
-            posicion={numerar ? indice + 1 : undefined}
-          />
+      <!-- Con el dedo se arrastra, pero con ratón no había forma de moverla:
+           las flechas aparecen en escritorio y se apagan solas al llegar a
+           cada extremo. -->
+      <div class="relative" data-fila>
+        <div class="carrusel -mx-5 px-5" data-pista>
+          {peliculas.map((pelicula, indice) => (
+            <TarjetaPelicula
+              pelicula={pelicula}
+              variante="fila"
+              posicion={numerar ? indice + 1 : undefined}
+            />
+          ))}
+        </div>
+
+        {["anterior", "siguiente"].map((sentido) => (
+          <button
+            type="button"
+            data-mover={sentido}
+            aria-label={sentido === "anterior" ? "Scroll left" : "Scroll right"}
+            class:list={[
+              "absolute top-1/2 z-10 hidden size-10 -translate-y-1/2 place-items-center rounded-full",
+              "border border-[var(--color-linea)] bg-[var(--color-fondo)]/90 backdrop-blur",
+              "transition hover:border-[var(--color-marca)] hover:text-[var(--color-marca)]",
+              "disabled:pointer-events-none disabled:opacity-0 lg:grid",
+              sentido === "anterior" ? "-left-4" : "-right-4",
+            ]}
+          >
+            <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+              <path d={sentido === "anterior" ? "M15 6l-6 6 6 6" : "M9 6l6 6-6 6"} />
+            </svg>
+          </button>
         ))}
       </div>
     </section>
   )
 }
+
+<script is:inline>
+  document.querySelectorAll("[data-fila]").forEach((fila) => {
+    const pista = fila.querySelector("[data-pista]");
+    const atras = fila.querySelector('[data-mover="anterior"]');
+    const alante = fila.querySelector('[data-mover="siguiente"]');
+    if (!pista) return;
+
+    // Se avanza algo menos de lo que se ve, para que la carátula del borde
+    // quede a la vista y no se pierda el hilo de por dónde iba la fila.
+    const salto = () => Math.max(200, pista.clientWidth * 0.8);
+
+    const repintar = () => {
+      const fin = pista.scrollWidth - pista.clientWidth - 4;
+      if (atras) atras.disabled = pista.scrollLeft <= 4;
+      if (alante) alante.disabled = pista.scrollLeft >= fin;
+    };
+
+    atras?.addEventListener("click", () => pista.scrollBy({ left: -salto(), behavior: "smooth" }));
+    alante?.addEventListener("click", () => pista.scrollBy({ left: salto(), behavior: "smooth" }));
+    pista.addEventListener("scroll", repintar, { passive: true });
+    addEventListener("resize", repintar);
+    repintar();
+  });
+</script>

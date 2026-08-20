@@ -4,8 +4,8 @@ import { absoluta } from "../lib/sitio";
 export const GET: APIRoute = () => {
   const cuerpo = `User-agent: *
 Allow: /
-# La búsqueda genera infinitas combinaciones y ninguna aporta nada al índice.
-Disallow: /buscar
+# Search generates endless combinations and none of them belong in an index.
+Disallow: /search
 
 Sitemap: ${absoluta("/sitemap.xml")}
 `;
