@@ -4,6 +4,10 @@ import { obtenerIndice } from "../lib/data";
 import { SITIO } from "../lib/sitio";
 
 const indice = await obtenerIndice();
+
+// Se sirve tambien cuando una ficha o un genero no existen, y en ese caso hay
+// que devolver 404 y no 200: si no, los buscadores indexan paginas de error.
+Astro.response.status = 404;
 ---
 
 <Base

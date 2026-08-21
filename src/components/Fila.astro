@@ -31,9 +31,9 @@ const { titulo, peliculas, enlace, numerar = false, clase = "" } = Astro.props;
         )}
       </header>
 
-      <!-- Con el dedo se arrastra, pero con ratón no había forma de moverla:
+      {/* Con el dedo se arrastra, pero con ratón no había forma de moverla:
            las flechas aparecen en escritorio y se apagan solas al llegar a
-           cada extremo. -->
+           cada extremo. */}
       <div class="relative" data-fila>
         <div class="carrusel -mx-5 px-5" data-pista>
           {peliculas.map((pelicula, indice) => (
@@ -68,11 +68,11 @@ const { titulo, peliculas, enlace, numerar = false, clase = "" } = Astro.props;
   )
 }
 
-<script is:inline>
-  document.querySelectorAll("[data-fila]").forEach((fila) => {
-    const pista = fila.querySelector("[data-pista]");
-    const atras = fila.querySelector('[data-mover="anterior"]');
-    const alante = fila.querySelector('[data-mover="siguiente"]');
+<script>
+  document.querySelectorAll<HTMLElement>("[data-fila]").forEach((fila) => {
+    const pista = fila.querySelector<HTMLElement>("[data-pista]");
+    const atras = fila.querySelector<HTMLButtonElement>('[data-mover="anterior"]');
+    const alante = fila.querySelector<HTMLButtonElement>('[data-mover="siguiente"]');
     if (!pista) return;
 
     // Se avanza algo menos de lo que se ve, para que la carátula del borde

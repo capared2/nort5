@@ -7,7 +7,9 @@ import type { APIRoute } from "astro";
  * Cloudflare Workers corta a los 10 ms de CPU: se devuelven tal cual llegan,
  * sin parsearlos.
  */
-const PERMITIDOS = /^sitemap(-generos|-peliculas-\d{4})?$/;
+// Los nombres los decide el recolector (scraper/seo.py): si cambian alli y no
+// aqui, el indice de sitemaps apunta a 404 y no se indexa nada.
+const PERMITIDOS = /^sitemap(-genres|-movies-\d{4})?$/;
 
 const BASE = (
   import.meta.env.DATASET_BASE_URL ||

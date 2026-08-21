@@ -75,7 +75,10 @@ export function peliculaJsonLd(pelicula: Pelicula) {
     description: pelicula.plot || undefined,
     image: pelicula.poster ?? undefined,
     genre: pelicula.genres.map(nombreGenero),
-    datePublished: pelicula.release_date ?? undefined,
+    // Si no hay fecha exacta se da el año, que schema.org admite como fecha
+    // parcial: identificar una película por su año vale mucho y lo tenemos.
+    datePublished:
+      pelicula.release_date ?? (pelicula.year ? String(pelicula.year) : undefined),
     duration: duracionIso(pelicula.runtime_minutes),
     contentRating: pelicula.certificate ?? undefined,
     inLanguage: pelicula.languages[0] ?? undefined,
@@ -88,12 +91,16 @@ export function peliculaJsonLd(pelicula: Pelicula) {
     director: pelicula.directors.map((quien) => persona(quien.name)),
     author: pelicula.writers.map((quien) => persona(quien.name)),
     actor: pelicula.cast.slice(0, 10).map((quien) => persona(quien.name)),
+    // La nota es la media de los críticos, así que el recuento tiene que ser
+    // el de críticos y no el del público: son dos poblaciones distintas, y
+    // declarar la una con el número de la otra infla la reseña.
     aggregateRating:
-      pelicula.rating !== null && pelicula.votes
+      pelicula.rating != null && pelicula.tomatometer_count
         ? {
             "@type": "AggregateRating",
             ratingValue: pelicula.rating,
-            ratingCount: pelicula.votes,
+            ratingCount: pelicula.tomatometer_count,
+            reviewCount: pelicula.tomatometer_count,
             bestRating: 10,
             worstRating: 1,
           }

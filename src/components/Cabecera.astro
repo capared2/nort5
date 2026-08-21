@@ -28,16 +28,16 @@ const destacados = generos.slice(0, 10);
         <strong class="font-display text-2xl font-extrabold leading-none tracking-tight">
           {SITIO.nombre}
         </strong>
-        <!-- En móvil el lema se guarda: ensanchaba tanto la marca que el botón
-             de tema se descolgaba a una línea para él solo. -->
+        {/* En móvil el lema se guarda: ensanchaba tanto la marca que el botón
+             de tema se descolgaba a una línea para él solo. */}
         <small class="mt-1 hidden text-[0.6rem] uppercase leading-none tracking-[0.18em] text-[var(--color-tinta-tenue)] sm:block">
           {SITIO.lema}
         </small>
       </span>
     </a>
 
-    <!-- En móvil el buscador se lleva su propia fila: apretado en la primera
-         empujaba el botón de tema fuera de la pantalla. -->
+    {/* En móvil el buscador se lleva su propia fila: apretado en la primera
+         empujaba el botón de tema fuera de la pantalla. */}
     <form
       action="/search"
       method="get"
@@ -162,26 +162,31 @@ const destacados = generos.slice(0, 10);
   }
 </header>
 
-<script is:inline>
+<script>
   // El género en el que estás puede quedar fuera de la parte visible de la
   // barra: se centra solo al cargar, sin arrastrar la página.
-  (function () {
-    var barra = document.querySelector("[data-generos]");
-    var activo = barra && barra.querySelector('[aria-current="page"]');
-    if (!activo) return;
-    var centro = activo.offsetLeft - (barra.clientWidth - activo.clientWidth) / 2;
+  const barra = document.querySelector<HTMLElement>("[data-generos]");
+  const activo = barra?.querySelector<HTMLElement>('[aria-current="page"]');
+  if (barra && activo) {
+    const centro = activo.offsetLeft - (barra.clientWidth - activo.clientWidth) / 2;
     barra.scrollTo({ left: Math.max(0, centro), behavior: "auto" });
-  })();
+  }
 
   // Un clic fuera cierra el desplegable de géneros.
-  document.addEventListener("click", function (evento) {
-    document.querySelectorAll("details[data-menu][open]").forEach(function (menu) {
-      if (!menu.contains(evento.target)) menu.open = false;
+  document.addEventListener("click", (evento) => {
+    const donde = evento.target;
+    if (!(donde instanceof Node)) return;
+    document.querySelectorAll<HTMLDetailsElement>("details[data-menu][open]").forEach((menu) => {
+      if (!menu.contains(donde)) menu.open = false;
     });
   });
 
   document.getElementById("cambiar-tema")?.addEventListener("click", () => {
     const claro = document.documentElement.classList.toggle("claro");
-    localStorage.setItem("tema", claro ? "claro" : "oscuro");
+    try {
+      localStorage.setItem("tema", claro ? "claro" : "oscuro");
+    } catch {
+      // Navegador con el almacenamiento cerrado: el tema dura esta visita.
+    }
   });
 </script>

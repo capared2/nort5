@@ -167,3 +167,15 @@ export function normalizar(texto: string): string {
     .toLowerCase()
     .trim();
 }
+
+/**
+ * Recorta por la última palabra entera.
+ *
+ * Google enseña unos 155 caracteres de la descripción y corta el resto a lo
+ * bruto, a media palabra; mejor decidir nosotros dónde acaba.
+ */
+export function recortar(texto: string, limite: number): string {
+  const limpio = texto.trim();
+  if (limpio.length <= limite) return limpio;
+  return limpio.slice(0, limite).replace(/\s+\S*$/, "") + "…";
+}

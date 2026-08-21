@@ -56,8 +56,8 @@ Astro.response.headers.set(
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <!-- De aquí vienen las carátulas: adelantar la conexión ahorra el saludo
-         TCP en una parrilla que enseña treinta imágenes de golpe. -->
+    {/* De aquí vienen las carátulas: adelantar la conexión ahorra el saludo
+         TCP en una parrilla que enseña treinta imágenes de golpe. */}
     <link rel="preconnect" href="https://resizing.flixster.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap"
@@ -67,9 +67,9 @@ Astro.response.headers.set(
     <link rel="apple-touch-icon" href="/favicon.svg" />
     <meta name="theme-color" content="#0b0d12" />
 
+    {/* Inline a propósito: el tema tiene que aplicarse antes de pintar, o hay
+        destello. Sin comentarios dentro, que este guion sí viaja al navegador. */}
     <script is:inline>
-      // Las carátulas las sirve Amazon: si alguna desaparece, se oculta en vez
-      // de enseñar el icono de imagen rota.
       addEventListener(
         "error",
         (evento) => {
@@ -78,9 +78,6 @@ Astro.response.headers.set(
         true,
       );
 
-      // El tema se aplica antes de pintar para que no haya destello. Se parte
-      // de lo oscuro, que es como se ve el cine y como está pensada la paleta:
-      // el claro solo llega si se pide con el botón de la cabecera.
       document.documentElement.classList.toggle("claro", localStorage.getItem("tema") === "claro");
     </script>
   </head>

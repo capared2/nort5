@@ -21,7 +21,7 @@ const lista = await obtenerGenero(clave);
 // Un género existe si el archivo tiene fichas suyas o si al menos aparece como
 // género secundario de alguna película.
 if (!entrada && !lista?.titles?.length) {
-  return new Response(null, { status: 404, statusText: "Genre not found" });
+  return Astro.rewrite("/404");
 }
 
 const nombre = entrada?.name || lista?.name || nombreGenero(clave);

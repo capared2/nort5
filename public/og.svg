@@ -20,7 +20,7 @@
     </g>
   </g>
   <text x="264" y="300" fill="#f3f5f9" font-family="Outfit, Inter, Helvetica, Arial, sans-serif" font-size="104" font-weight="800" letter-spacing="-3">nort5</text>
-  <text x="266" y="356" fill="#ffc233" font-family="Inter, Helvetica, Arial, sans-serif" font-size="30" font-weight="600" letter-spacing="7">EL CINE, ORDENADO</text>
+  <text x="266" y="356" fill="#ffc233" font-family="Inter, Helvetica, Arial, sans-serif" font-size="30" font-weight="600" letter-spacing="7">MOVIES, SORTED</text>
   <rect x="96" y="430" width="1008" height="2" fill="#262d38"/>
-  <text x="96" y="492" fill="#a8b2c1" font-family="Inter, Helvetica, Arial, sans-serif" font-size="30">Nota, sinopsis, reparto y ficha completa de miles de películas.</text>
+  <text x="96" y="492" fill="#a8b2c1" font-family="Inter, Helvetica, Arial, sans-serif" font-size="30">Scores, synopsis, cast and full details for thousands of movies.</text>
 </svg>
