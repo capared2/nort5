@@ -6,6 +6,7 @@ import Cartel from "../../components/Cartel.astro";
 import Porcentaje from "../../components/Porcentaje.astro";
 import Trailer from "../../components/Trailer.astro";
 import { obtenerIndice, obtenerParecidas, obtenerPelicula } from "../../lib/data";
+import { contextoDe } from "../../lib/cache";
 import {
   caratula,
   recortar,
@@ -24,7 +25,9 @@ import { grafoPelicula } from "../../lib/seo";
 
 const { id } = Astro.params;
 
-const pelicula = await obtenerPelicula(id ?? "");
+// `ctx.waitUntil` deja que la ficha suelta se guarde en cache sin retrasar la
+// respuesta. En `astro dev` no existe runtime de Cloudflare y no pasa nada.
+const pelicula = await obtenerPelicula(id ?? "", contextoDe(Astro.locals));
 if (!pelicula) {
   return Astro.rewrite("/404");
 }

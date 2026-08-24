@@ -11,6 +11,15 @@ import type {
   Tarjeta,
 } from "./types";
 import { claveGenero, normalizar } from "./format";
+import {
+  CLAVE_DATOS,
+  Memoria,
+  TTL,
+  cacheDelEdge,
+  guardarEnCache,
+  respuestaDeDatos,
+  type Contexto,
+} from "./cache";
 
 /**
  * De dónde sale el catálogo.
@@ -27,22 +36,68 @@ const BASE = (
   "https://raw.githubusercontent.com/capared2/nort5bat/main/data"
 ).replace(/\/+$/, "");
 
-async function leerJson<T>(ruta: string): Promise<T | null> {
+/**
+ * Ficheros pequeños y muy compartidos: el indice, la portada y los cubos de
+ * rutas. Los piden casi todas las paginas, asi que conviene tener muchos.
+ */
+const ligeros = new Memoria<unknown>(32);
+
+/**
+ * Listas de genero (185 KB) y cubos de busqueda (435 KB). Son medianos, pero
+ * los comparten **todas** las peticiones: solo hay una veintena de generos y
+ * veintisiete cubos, asi que se guardan aparte para que una racha de fichas no
+ * los desaloje.
+ */
+const catalogo = new Memoria<unknown>(10);
+
+/**
+ * Ficheros de titulos, hasta 390 KB. El limite es bajo a proposito: son
+ * concretos de cada pelicula y un isolate solo tiene 128 MB. Aun asi cubre el
+ * caso que importa, el rastreador que recorre seguidas las fichas de un mismo
+ * genero.
+ */
+const archivos = new Memoria<unknown>(4);
+
+/**
+ * Descarga un JSON del catalogo, reutilizando lo que ya se haya leido.
+ *
+ * `cf.cacheTtl` hace que la respuesta de GitHub la sirva el edge de
+ * Cloudflare: cuando la memoria del isolate falla, la subpeticion casi nunca
+ * llega a salir a Internet.
+ */
+async function leerJson<T>(
+  ruta: string,
+  ttl: number,
+  memoria: Memoria<unknown>,
+): Promise<T | null> {
+  const memorizado = memoria.leer(ruta);
+  if (memorizado !== undefined) return memorizado as T;
+
   try {
-    const respuesta = await fetch(`${BASE}${ruta}`);
+    const respuesta = await fetch(`${BASE}${ruta}`, {
+      cf: { cacheTtl: ttl, cacheEverything: true },
+    } as RequestInit);
     if (!respuesta.ok) return null;
-    return (await respuesta.json()) as T;
+
+    const valor = (await respuesta.json()) as T;
+    memoria.guardar(ruta, valor, ttl);
+    return valor;
   } catch {
     return null;
   }
 }
 
-export const obtenerIndice = () => leerJson<Indice>("/index.json");
-export const obtenerPortada = () => leerJson<Portada>("/portada.json");
-export const obtenerGenero = (clave: string) => leerJson<ListaGenero>(`/generos/${clave}.json`);
+export const obtenerIndice = () => leerJson<Indice>("/index.json", TTL.indice, ligeros);
+export const obtenerPortada = () => leerJson<Portada>("/portada.json", TTL.indice, ligeros);
+export const obtenerGenero = (clave: string) =>
+  leerJson<ListaGenero>(`/generos/${clave}.json`, TTL.genero, catalogo);
 
 const obtenerParte = (genero: string, parte: number) =>
-  leerJson<ArchivoParte>(`/titulos/${genero}/part-${String(parte).padStart(4, "0")}.json`);
+  leerJson<ArchivoParte>(
+    `/titulos/${genero}/part-${String(parte).padStart(4, "0")}.json`,
+    TTL.parte,
+    archivos,
+  );
 
 /** De más votada a menos: es el orden en que se recorre todo el sitio. */
 function porPopularidad<T extends { votes: number | null; rating: number | null }>(lista: T[]): T[] {
@@ -58,18 +113,42 @@ function porPopularidad<T extends { votes: number | null; rating: number | null 
  * fichero vive, y ese fichero trae la ficha. Así la dirección pública no tiene
  * que llevar el género dentro y no se rompe si la película cambia de género.
  */
-export async function obtenerPelicula(id: string): Promise<Pelicula | null> {
+export async function obtenerPelicula(id: string, ctx?: Contexto): Promise<Pelicula | null> {
   // El identificador va en la URL y acaba siendo una ruta de fichero: se
-  // comprueba antes de usarlo.
+  // comprueba antes de usarlo. Va lo primero, tambien porque asi un id
+  // inventado no llega a tocar la cache.
   if (!/^[a-z0-9][a-z0-9_-]{0,120}$/.test(id)) return null;
 
-  const rutas = await leerJson<Rutas>(`/rutas/${id.slice(-2)}.json`);
+  // El fichero de titulos que la contiene ronda los 390 KB y cuesta 1,6 ms de
+  // parseo, para quedarse con una ficha de las cientos que trae. Por eso, una
+  // vez encontrada, la ficha suelta se guarda aparte en la Cache API: la
+  // siguiente visita lee unos pocos kilobytes en lugar del fichero entero,
+  // aunque el isolate ya se haya reciclado.
+  const cache = cacheDelEdge();
+  const clave = `${CLAVE_DATOS}/pelicula/${id}`;
+
+  if (cache) {
+    try {
+      const guardada = await cache.match(clave);
+      if (guardada) return (await guardada.json()) as Pelicula;
+    } catch {
+      // Cache corrupta o ilegible: se resuelve por el camino largo.
+    }
+  }
+
+  const rutas = await leerJson<Rutas>(`/rutas/${id.slice(-2)}.json`, TTL.rutas, ligeros);
   const destino = rutas?.titles?.[id];
   if (!destino) return null;
 
   const [genero, parte] = destino;
   const archivo = await obtenerParte(genero, parte);
-  return archivo?.titles.find((pelicula) => pelicula.id === id) ?? null;
+  const pelicula = archivo?.titles.find((titulo) => titulo.id === id) ?? null;
+
+  if (pelicula && cache) {
+    guardarEnCache(cache, clave, respuestaDeDatos(pelicula, TTL.pelicula), ctx);
+  }
+
+  return pelicula;
 }
 
 export interface PaginaGenero {
@@ -174,7 +253,7 @@ export async function buscar(consulta: string, limite = 60): Promise<Resultado[]
 
   const iniciales = [...new Set(terminos.map((t) => (/[a-z]/.test(t[0]!) ? t[0]! : "0")))].slice(0, 3);
   const cubos = await Promise.all(
-    iniciales.map((letra) => leerJson<CuboBusqueda>(`/buscar/${letra}.json`)),
+    iniciales.map((letra) => leerJson<CuboBusqueda>(`/buscar/${letra}.json`, TTL.buscar, catalogo)),
   );
 
   const vistas = new Set<string>();
