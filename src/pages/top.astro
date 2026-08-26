@@ -2,6 +2,8 @@
 import Base from "../layouts/Base.astro";
 import TarjetaPelicula from "../components/Tarjeta.astro";
 import Vacio from "../components/Vacio.astro";
+import Banner from "../components/Banner.astro";
+import BannerNativo from "../components/BannerNativo.astro";
 import { obtenerIndice, obtenerPortada } from "../lib/data";
 import { numero } from "../lib/format";
 import { SITIO } from "../lib/sitio";
@@ -32,6 +34,8 @@ const peliculas = portada?.mejor_valoradas ?? [];
     </p>
   </header>
 
+  <Banner hueco="horizontal" clase="mb-8" />
+
   {
     peliculas.length === 0 ? (
       <Vacio
@@ -41,11 +45,21 @@ const peliculas = portada?.mejor_valoradas ?? [];
     ) : (
       <ol>
         {peliculas.map((pelicula, indiceLista) => (
-          <li>
-            <TarjetaPelicula pelicula={pelicula} variante="lista" posicion={indiceLista + 1} />
-          </li>
+          <>
+            <li>
+              <TarjetaPelicula pelicula={pelicula} variante="lista" posicion={indiceLista + 1} />
+            </li>
+            {(indiceLista + 1) % 5 === 0 && indiceLista + 1 < peliculas.length && (
+              <li>
+                <Banner hueco="horizontal" clase="my-6" />
+              </li>
+            )}
+          </>
         ))}
       </ol>
     )
   }
+
+  <BannerNativo clase="mt-10" />
+  <Banner hueco="franja" clase="mt-8" />
 </Base>

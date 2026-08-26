@@ -112,3 +112,32 @@
     transparent 100%
   );
 }
+
+/* Rascacielos de los laterales. Van fijos en el margen que deja el contenedor
+   (82rem) y solo desde 1664px, que es cuando sobran a cada lado los 160 del
+   banner más un respiro. Por debajo no se enseñan, y tampoco se piden: el
+   catálogo no da unidad para esa anchura (ver src/lib/anuncios.ts). */
+.rail {
+  display: none;
+}
+
+@media (min-width: 1664px) {
+  .rail {
+    position: fixed;
+    top: 50%;
+    z-index: 20;
+    display: block;
+    transform: translateY(-50%);
+  }
+
+  /* El max() es el seguro: con la barra de desplazamiento contando dentro de
+     100vw el hueco sale unos píxeles más justo, y sin él el banner se saldría
+     de la pantalla en vez de arrimarse al borde. */
+  .rail-izquierda {
+    left: max(0.5rem, calc((100vw - 82rem) / 2 - 176px));
+  }
+
+  .rail-derecha {
+    right: max(0.5rem, calc((100vw - 82rem) / 2 - 176px));
+  }
+}

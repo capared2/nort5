@@ -2,6 +2,7 @@
 import Base from "../layouts/Base.astro";
 import { obtenerIndice } from "../lib/data";
 import { SITIO } from "../lib/sitio";
+import Banner from "../components/Banner.astro";
 
 const indice = await obtenerIndice();
 
@@ -38,5 +39,9 @@ Astro.response.status = 404;
         Browse genres
       </a>
     </p>
+
+    <Banner hueco="rectangulo" clase="mt-10" />
   </div>
+
+  <Banner hueco="horizontal" clase="mt-6" />
 </Base>

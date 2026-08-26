@@ -4,6 +4,8 @@ import Fila from "../components/Fila.astro";
 import Estrella from "../components/Estrella.astro";
 import Cartel from "../components/Cartel.astro";
 import Vacio from "../components/Vacio.astro";
+import Banner from "../components/Banner.astro";
+import BannerNativo from "../components/BannerNativo.astro";
 import { obtenerIndice, obtenerPortada } from "../lib/data";
 import { caratula, colorGenero, duracion, enlaceGenero, enlacePelicula, nombreGenero, numero } from "../lib/format";
 import { SITIO } from "../lib/sitio";
@@ -106,14 +108,23 @@ const cartelGrande = caratula(destacada?.poster, 600);
           </section>
         )}
 
+        <Banner hueco="horizontal" clase="mt-8" />
+
         <Fila titulo="Trending" peliculas={resto} enlace="/top" />
+
+        <Banner hueco="franja" clase="mt-8" />
         <Fila
           titulo="Top rated"
           peliculas={portada?.mejor_valoradas ?? []}
           enlace="/top"
           numerar
         />
+        <BannerNativo clase="mt-10" />
+
         <Fila titulo="New releases" peliculas={portada?.recientes ?? []} />
+
+        <Banner hueco="horizontal" clase="mt-8" />
+
         <Fila titulo="Classics that hold up" peliculas={portada?.clasicos ?? []} />
 
         {generos.length > 0 && (
@@ -136,6 +147,8 @@ const cartelGrande = caratula(destacada?.poster, 600);
             </div>
           </section>
         )}
+
+        <Banner hueco="horizontal" clase="mt-12" />
       </>
     )
   }

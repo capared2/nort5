@@ -1,20 +1,34 @@
 ---
 import type { Pelicula, Tarjeta } from "../lib/types";
 import TarjetaPelicula from "./Tarjeta.astro";
+import Banner from "./Banner.astro";
 
 interface Props {
   peliculas: (Tarjeta | Pelicula)[];
   /** Numera las tarjetas: para las páginas que son un ranking. */
   numerar?: boolean;
+  /** Intercala un anuncio cada N carátulas, ocupando la fila entera. */
+  anuncioCada?: number;
 }
 
-const { peliculas, numerar = false } = Astro.props;
+const { peliculas, numerar = false, anuncioCada = 0 } = Astro.props;
 ---
 
 <div class="grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6">
   {
     peliculas.map((pelicula, indice) => (
-      <TarjetaPelicula pelicula={pelicula} posicion={numerar ? indice + 1 : undefined} />
+      <>
+        <TarjetaPelicula pelicula={pelicula} posicion={numerar ? indice + 1 : undefined} />
+        {/* La carátula es alta y estrecha: un banner metido en una celda se
+            saldría. Ocupando la fila entera cabe holgado y corta la parrilla
+            por donde ya hay un descanso visual. */}
+        {anuncioCada > 0 && (indice + 1) % anuncioCada === 0 && indice + 1 < peliculas.length && (
+          <Banner
+            hueco="horizontal"
+            clase="col-span-full my-2 justify-center rounded-xl border border-dashed border-[var(--color-linea)] py-4"
+          />
+        )}
+      </>
     ))
   }
 </div>

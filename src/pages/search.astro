@@ -1,6 +1,8 @@
 ---
 import Base from "../layouts/Base.astro";
 import Vacio from "../components/Vacio.astro";
+import Banner from "../components/Banner.astro";
+import BannerNativo from "../components/BannerNativo.astro";
 import { buscar, obtenerIndice } from "../lib/data";
 import { enlaceGenero, enlacePelicula, nombreGenero, nota, numero } from "../lib/format";
 import { SITIO } from "../lib/sitio";
@@ -42,6 +44,8 @@ const [indice, resultados] = await Promise.all([
     </p>
   </header>
 
+  <Banner hueco="horizontal" clase="mb-6" />
+
   {
     consulta && resultados.length === 0 ? (
       <Vacio
@@ -78,6 +82,8 @@ const [indice, resultados] = await Promise.all([
     )
   }
 
+  <BannerNativo clase="mt-8" />
+
   {
     !consulta && (
       <div class="mt-8 flex flex-wrap gap-2">
@@ -92,4 +98,6 @@ const [indice, resultados] = await Promise.all([
       </div>
     )
   }
+
+  <Banner hueco="franja" clase="mt-8" />
 </Base>

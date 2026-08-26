@@ -4,6 +4,8 @@ import Fila from "../../components/Fila.astro";
 import Rejilla from "../../components/Rejilla.astro";
 import Paginacion from "../../components/Paginacion.astro";
 import Vacio from "../../components/Vacio.astro";
+import Banner from "../../components/Banner.astro";
+import BannerNativo from "../../components/BannerNativo.astro";
 import { obtenerGenero, obtenerIndice, obtenerPaginaGenero } from "../../lib/data";
 import { colorGenero, enlaceGenero, nombreGenero, numero } from "../../lib/format";
 import { SITIO } from "../../lib/sitio";
@@ -61,11 +63,15 @@ const titulo =
     </p>
   </header>
 
+  <Banner hueco="horizontal" clase="mb-8" />
+
   {
     archivo.pagina === 1 && destacadas.length > 0 && (
       <Fila titulo={`Essential ${nombre}`} peliculas={destacadas} numerar clase="!mt-0" />
     )
   }
+
+  <Banner hueco="franja" clase="mt-10" />
 
   {
     archivo.peliculas.length > 0 ? (
@@ -74,8 +80,13 @@ const titulo =
           <span class="mr-2 inline-block h-5 w-1 translate-y-0.5 rounded-full" style={`background:${acento}`} />
           The full {nombre} archive
         </h2>
-        <Rejilla peliculas={archivo.peliculas} />
+        <Rejilla peliculas={archivo.peliculas} anuncioCada={12} />
+
+        <BannerNativo clase="mt-8" />
+
         <Paginacion clave={clave} pagina={archivo.pagina} paginas={archivo.paginas} />
+
+        <Banner hueco="horizontal" clase="mt-8" />
       </section>
     ) : (
       destacadas.length === 0 && (

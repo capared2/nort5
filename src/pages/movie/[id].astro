@@ -5,6 +5,8 @@ import Fila from "../../components/Fila.astro";
 import Cartel from "../../components/Cartel.astro";
 import Porcentaje from "../../components/Porcentaje.astro";
 import Trailer from "../../components/Trailer.astro";
+import Banner from "../../components/Banner.astro";
+import BannerNativo from "../../components/BannerNativo.astro";
 import { obtenerIndice, obtenerParecidas, obtenerPelicula } from "../../lib/data";
 import { contextoDe } from "../../lib/cache";
 import {
@@ -201,9 +203,12 @@ const descripcion =
             )
           }
 
+          <Banner hueco="rectangulo" clase="mt-7 sm:mx-0 sm:items-start" />
         </div>
       </div>
     </div>
+
+    <Banner hueco="horizontal" clase="mt-8" />
 
     {
       pelicula.trailer && (
@@ -218,6 +223,8 @@ const descripcion =
         </section>
       )
     }
+
+    <BannerNativo clase="mt-10" />
 
     {
       pelicula.cast.length > 0 && (
@@ -254,6 +261,8 @@ const descripcion =
         </section>
       )
     }
+
+    <Banner hueco="horizontal" clase="mt-10" />
 
     {
       pelicula.streaming?.length > 0 && (
@@ -306,7 +315,11 @@ const descripcion =
       )
     }
 
+    <Banner hueco="franja" clase="mt-10" />
+
     <Fila titulo="More like this" peliculas={parecidas} enlace={enlaceGenero(claveGenero(generoPrincipal))} />
+
+    <Banner hueco="horizontal" clase="mt-10" />
 
     <p class="mt-10 text-xs text-[var(--color-tinta-tenue)]">
       Details gathered from external sources{pelicula.scraped_at && ` on ${fecha(pelicula.scraped_at)}`}.

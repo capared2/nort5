@@ -4,6 +4,8 @@ import { obtenerIndice } from "../lib/data";
 import { colorGenero, enlaceGenero, nombreGenero, numero } from "../lib/format";
 import { SITIO } from "../lib/sitio";
 import { grafoGeneros } from "../lib/seo";
+import Banner from "../components/Banner.astro";
+import BannerNativo from "../components/BannerNativo.astro";
 
 const indice = await obtenerIndice();
 const generos = [...(indice?.genres ?? [])]
@@ -28,6 +30,8 @@ const mayor = generos[0]?.tagged ?? 1;
       {numero(indice?.total_titles ?? 0)} movies across {generos.length} genres.
     </p>
   </header>
+
+  <Banner hueco="horizontal" clase="mb-8" />
 
   <ul class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
     {
@@ -62,4 +66,7 @@ const mayor = generos[0]?.tagged ?? 1;
       })
     }
   </ul>
+
+  <BannerNativo clase="mt-10" />
+  <Banner hueco="franja" clase="mt-8" />
 </Base>

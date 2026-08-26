@@ -128,6 +128,53 @@ enseña treinta imágenes de golpe. En origen vienen a 68×102 píxeles.
 Cada tarjeta enseña el porcentaje de los críticos con su color —verde, ámbar o
 rojo—, que es lo que se lee de un vistazo sin interpretar un número.
 
+## Publicidad
+
+Banners display integrados en el contenido. El catálogo de unidades está en
+`src/lib/anuncios.ts` y se colocan con `<Banner hueco="..." />`.
+
+| Hueco | Escritorio | Móvil |
+| --- | --- | --- |
+| `horizontal` | 728×90 | 320×50 |
+| `franja` | 468×60 | 320×50 |
+| `rectangulo` | 300×250 | 300×250 |
+| `vertical` | 160×600 desde 1664px | no se carga |
+| `columna` | 160×300 desde 1664px | no se carga |
+
+Dónde van:
+
+- **Ficha**: rectángulo al pie de la columna de datos, franja ancha tras la
+  cabecera, nativo entre el tráiler y el reparto, y franjas tras el reparto,
+  tras la ficha técnica y tras las parecidas.
+- **Género**: franja tras la cabecera, otra antes del archivo, un banner cada
+  doce carátulas ocupando la fila entera, nativo antes de la paginación y otro
+  al cerrar.
+- **Portada**: franja tras la destacada, otra tras «Trending», nativo antes de
+  los estrenos, y franjas entre las filas restantes y al final.
+- **Ranking**: franja tras la cabecera y un banner cada cinco puestos.
+- **Géneros, búsqueda y 404**: franja arriba y cierre abajo.
+- **Rascacielos**: fijos en el margen que sobra a los lados, solo desde 1664px.
+
+Los dos rascacielos tienen ese umbral y no uno de «pantalla grande» cualquiera:
+el contenedor mide 82rem, y hasta 1664px no sobran a cada lado los 160 del
+banner más un respiro. Por debajo el catálogo no da unidad, así que ni se piden.
+
+Cuatro decisiones que hacen que esto funcione:
+
+1. **Cada banner va en su propio iframe.** Todos los `invoke.js` leen la global
+   `atOptions`; compartiendo página se pisarían la variable y acabarían
+   mostrando todos la misma unidad, o ninguna.
+2. **De cada hueco se carga una sola unidad**, la que corresponde a la pantalla.
+   Cargar varias y ocultar las que sobran contaría impresiones que nadie ve, y
+   eso es tráfico inválido.
+3. **Se cargan al acercarse a la vista**, con 600 px de margen, y con la altura
+   reservada de antemano para que nada salte al aparecer.
+4. **La unidad suelta no tiene hueco en el HTML**: se pide una vez por página y
+   la red la coloca por su cuenta. Como no ocupa sitio en el documento, no
+   espera al scroll.
+
+Se apagan con `ANUNCIOS=0`.
+
 ## Desarrollo
 
 ```bash
