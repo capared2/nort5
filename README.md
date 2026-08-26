@@ -82,8 +82,10 @@ Todo sale del propio dataset, sin nada que mantener a mano:
 - **Datos estructurados**: un solo `@graph` de schema.org por página, con
   `Organization`, `WebSite` (más `SearchAction`, que habilita la caja de
   búsqueda en Google), `BreadcrumbList`, `CollectionPage`, `ItemList` y
-  `Movie` completa —nota, votos, duración, clasificación, dirección, reparto,
-  país y productora.
+  `Movie` con lo que la recolección trae de verdad: nota y número de críticos,
+  género, año, duración, clasificación, dirección y reparto. País, productora,
+  presupuesto y taquilla están previstos en el tipo, pero Rotten Tomatoes no
+  los publica en la ficha, así que se omiten en vez de inventarlos.
 - **AEO**: `speakable` en cada ficha, que marca qué leer en alto si alguien
   pregunta por una película.
 - **GEO**: `/llms.txt` describe el sitio, cómo están organizadas las páginas y

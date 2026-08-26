@@ -14,7 +14,6 @@ export function fecha(iso: string | null): string {
   return FECHA.format(valor);
 }
 
-/** 142 -> "2 h 22 min". Es como lo lee cualquiera antes de sentarse a verla. */
 /** 142 -> "2h 22m", que es como se lee una duracion antes de sentarse a verla. */
 export function duracion(minutos: number | null): string {
   if (!minutos || minutos <= 0) return "";
@@ -58,7 +57,7 @@ export function dinero(valor: { amount: number; currency: string } | null): stri
   }
 }
 
-/** "Sci-Fi" o "sci-fi" -> "Ciencia ficción". */
+/** "Sci-Fi" o "sci-fi" -> "Sci-Fi": el nombre del género tal y como se enseña. */
 export function nombreGenero(clave: string): string {
   const slug = clave
     .normalize("NFKD")
