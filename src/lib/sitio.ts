@@ -11,6 +11,8 @@ export const SITIO = {
   idioma: "en",
   locale: "en_US",
   pais: "US",
+  /** Identificador de medición de Google Analytics (gtag.js). */
+  analitica: "G-C3Z8S6S32C",
 } as const;
 
 /** Convierte una ruta del sitio en URL absoluta, que es lo que piden los buscadores. */
