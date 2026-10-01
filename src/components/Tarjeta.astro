@@ -24,7 +24,7 @@ const sinopsis = "plot" in pelicula ? pelicula.plot : "";
 
 {
   variante === "lista" ? (
-    <article class="group flex gap-4 border-b border-[var(--color-linea)] py-4 last:border-0">
+    <article class="group flex gap-4 border-b border-[var(--color-linea)] py-4 last:border-0 active:bg-[var(--color-lienzo)]">
       {posicion !== undefined && (
         <span class="w-7 shrink-0 pt-1 text-right font-display text-lg font-bold tabular-nums text-[var(--color-tinta-tenue)]">
           {posicion}
@@ -68,7 +68,7 @@ const sinopsis = "plot" in pelicula ? pelicula.plot : "";
     >
       <a
         href={enlace}
-        class="relative block overflow-hidden rounded-lg bg-[var(--color-lienzo-alt)] ring-1 ring-[var(--color-linea)] transition duration-300 group-hover:ring-[var(--color-marca)]"
+        class="pulsable relative block overflow-hidden rounded-lg bg-[var(--color-lienzo-alt)] ring-1 ring-[var(--color-linea)] transition duration-300 group-hover:ring-[var(--color-marca)]"
       >
         <Cartel
           poster={pelicula.poster}

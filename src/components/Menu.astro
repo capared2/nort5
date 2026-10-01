@@ -1,0 +1,250 @@
+---
+import type { Indice } from "../lib/types";
+import { colorGenero, enlaceGenero, nombreGenero, numero } from "../lib/format";
+import { SITIO } from "../lib/sitio";
+import Logo from "./Logo.astro";
+
+interface Props {
+  indice: Indice | null;
+}
+
+const { indice } = Astro.props;
+
+const generos = [...(indice?.genres ?? [])]
+  .filter((genero) => genero.tagged > 0 || genero.titles > 0)
+  .sort((a, b) => b.tagged - a.tagged || b.titles - a.titles);
+---
+
+{/* La hoja que sube desde abajo al tocar «Menu». Es un popover: se abre sin
+     JavaScript, se cierra tocando fuera o con Escape, y el navegador la pone
+     por encima de todo, anuncios incluidos. */}
+<div id="menu" popover role="dialog" aria-labelledby="menu-titulo" class="hoja" data-hoja>
+  <div class="sticky top-0 z-10 -mx-5 bg-[var(--color-fondo)] px-5 pb-3 pt-2.5" data-asa>
+    <span class="mx-auto block h-1.5 w-10 rounded-full bg-[var(--color-linea)]" aria-hidden="true"></span>
+    <div class="mt-3 flex items-center gap-3">
+      <Logo clase="size-10 shrink-0 text-[var(--color-marca)]" />
+      <p class="min-w-0 flex-1">
+        <strong id="menu-titulo" class="block font-display text-xl font-extrabold leading-none tracking-tight">
+          {SITIO.nombre}
+        </strong>
+        <small class="mt-1 block text-xs text-[var(--color-tinta-tenue)]">{SITIO.lema}</small>
+      </p>
+      <button
+        type="button"
+        popovertarget="menu"
+        popovertargetaction="hide"
+        aria-label="Close menu"
+        class="pulsable grid size-9 shrink-0 place-items-center rounded-full bg-[var(--color-lienzo-alt)] text-[var(--color-tinta-suave)]"
+      >
+        <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true">
+          <path d="M6 6l12 12M18 6L6 18"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <section class="mt-3">
+    <h2 class="etiqueta-menu">Appearance</h2>
+    <div class="grid grid-cols-2 gap-1 rounded-xl bg-[var(--color-lienzo-alt)] p-1" role="group" aria-label="Theme">
+      {
+        [
+          { tema: "oscuro", nombre: "Dark", icono: "M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z" },
+          {
+            tema: "claro",
+            nombre: "Light",
+            icono:
+              "M12 7.5a4.5 4.5 0 110 9 4.5 4.5 0 010-9zM12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4",
+          },
+        ].map((opcion) => (
+          <button
+            type="button"
+            data-tema={opcion.tema}
+            aria-pressed="false"
+            class="pulsable flex items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold text-[var(--color-tinta-suave)] aria-pressed:bg-[var(--color-fondo)] aria-pressed:text-[var(--color-tinta)] aria-pressed:shadow"
+          >
+            <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true">
+              <path d={opcion.icono} />
+            </svg>
+            {opcion.nombre}
+          </button>
+        ))
+      }
+    </div>
+  </section>
+
+  {/* Solo se enseña donde se puede instalar y aún no se ha hecho. */}
+  <section class="mt-6" data-instalar hidden>
+    <h2 class="etiqueta-menu">App</h2>
+    <button
+      type="button"
+      data-instalar-boton
+      class="pulsable flex w-full items-center gap-3 rounded-xl bg-[var(--color-lienzo)] p-3 text-left ring-1 ring-[var(--color-linea)]"
+    >
+      <span class="grid size-10 shrink-0 place-items-center rounded-xl bg-[var(--color-marca)] text-[#10131a]">
+        <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 4v11M7.5 10.5 12 15l4.5-4.5M5 19.5h14"></path>
+        </svg>
+      </span>
+      <span class="min-w-0 flex-1">
+        <strong class="block text-sm font-semibold">Install {SITIO.nombre}</strong>
+        <span class="block text-xs text-[var(--color-tinta-tenue)]" data-instalar-detalle>
+          Open it from your home screen, like any other app.
+        </span>
+      </span>
+    </button>
+  </section>
+
+  {
+    generos.length > 0 && (
+      <section class="mt-6">
+        <h2 class="etiqueta-menu">Genres</h2>
+        <ul class="grid grid-cols-2 gap-2">
+          {generos.map((genero) => (
+            <li>
+              <a
+                href={enlaceGenero(genero.genre)}
+                class="pulsable flex items-center gap-2.5 rounded-xl bg-[var(--color-lienzo)] px-3 py-2.5 text-sm font-semibold ring-1 ring-[var(--color-linea)]"
+              >
+                <span class="size-2.5 shrink-0 rounded-full" style={`background:${colorGenero(genero.genre)}`} />
+                <span class="min-w-0 flex-1 truncate">{genero.name || nombreGenero(genero.genre)}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+
+  <section class="mt-6">
+    <h2 class="etiqueta-menu">About</h2>
+    <ul class="divide-y divide-[var(--color-linea)] overflow-hidden rounded-xl bg-[var(--color-lienzo)] text-sm ring-1 ring-[var(--color-linea)]">
+      <li>
+        <a href="/genres" class="flex items-center justify-between px-4 py-3 font-semibold active:bg-[var(--color-lienzo-alt)]">
+          All genres <span aria-hidden="true" class="text-[var(--color-tinta-tenue)]">›</span>
+        </a>
+      </li>
+      <li>
+        <a href="/rss.xml" class="flex items-center justify-between px-4 py-3 font-semibold active:bg-[var(--color-lienzo-alt)]">
+          New releases feed (RSS) <span aria-hidden="true" class="text-[var(--color-tinta-tenue)]">›</span>
+        </a>
+      </li>
+    </ul>
+    <p class="mt-4 text-xs leading-relaxed text-[var(--color-tinta-tenue)]">
+      {indice && `${numero(indice.total_titles)} movies across ${indice.total_genres} genres. `}
+      Data and artwork come from external sources; {SITIO.nombre} is not affiliated with any of
+      them.
+    </p>
+  </section>
+</div>
+
+<script>
+  import { avisar } from "../lib/aviso";
+  import { ponerTema, sincronizarTema } from "../lib/tema";
+
+  const hoja = document.querySelector<HTMLElement>("[data-hoja]");
+
+  sincronizarTema();
+  document.querySelectorAll<HTMLElement>("[data-tema]").forEach((boton) => {
+    boton.addEventListener("click", () => ponerTema(boton.dataset.tema === "claro"));
+  });
+
+  // Al volver atrás, el navegador puede devolver la página tal cual se dejó,
+  // con la hoja abierta encima.
+  addEventListener("pageshow", (evento) => {
+    if (evento.persisted && hoja?.matches(":popover-open")) hoja.hidePopover();
+  });
+
+  // Se cierra arrastrándola hacia abajo, desde el asa o desde cualquier punto
+  // si ya está arriba del todo, como las hojas del sistema.
+  if (hoja) {
+    let inicio: number | null = null;
+    let tiron = 0;
+
+    const soltar = () => {
+      hoja.style.removeProperty("transform");
+      hoja.style.removeProperty("transition");
+    };
+
+    hoja.addEventListener(
+      "touchstart",
+      (evento) => {
+        const desdeAsa = evento.target instanceof Element && evento.target.closest("[data-asa]");
+        inicio = desdeAsa || hoja.scrollTop <= 0 ? evento.touches[0].clientY : null;
+        tiron = 0;
+      },
+      { passive: true },
+    );
+
+    hoja.addEventListener(
+      "touchmove",
+      (evento) => {
+        if (inicio === null) return;
+        tiron = evento.touches[0].clientY - inicio;
+        if (tiron <= 0) {
+          soltar();
+          return;
+        }
+        hoja.style.transition = "none";
+        hoja.style.transform = `translateY(${tiron}px)`;
+      },
+      { passive: true },
+    );
+
+    hoja.addEventListener("touchend", () => {
+      if (inicio === null) return;
+      inicio = null;
+      // Sin la transición en línea, la hoja sigue desde donde la dejó el dedo.
+      soltar();
+      if (tiron > 90) hoja.hidePopover();
+    });
+  }
+
+  // Instalar como app. Chrome y Edge avisan con `beforeinstallprompt` y dejan
+  // lanzar su diálogo; Safari no tiene diálogo y hay que explicar el camino.
+  const seccion = document.querySelector<HTMLElement>("[data-instalar]");
+  const boton = document.querySelector<HTMLButtonElement>("[data-instalar-boton]");
+  const detalle = document.querySelector<HTMLElement>("[data-instalar-detalle]");
+  const instalada =
+    matchMedia("(display-mode: standalone)").matches ||
+    (navigator as Navigator & { standalone?: boolean }).standalone === true;
+  // El iPad se presenta como un Mac; lo delata la pantalla táctil.
+  const ios =
+    /iphone|ipad|ipod/i.test(navigator.userAgent) ||
+    (/macintosh/i.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
+
+  type AvisoInstalar = Event & { prompt: () => Promise<void>; userChoice: Promise<{ outcome: string }> };
+  let aviso: AvisoInstalar | null = null;
+
+  if (seccion && boton && !instalada) {
+    if (ios) {
+      seccion.hidden = false;
+      if (detalle) detalle.textContent = "Tap Share, then “Add to Home Screen”.";
+    }
+
+    addEventListener("beforeinstallprompt", (evento) => {
+      aviso = evento as AvisoInstalar;
+      seccion.hidden = false;
+    });
+
+    addEventListener("appinstalled", () => {
+      aviso = null;
+      seccion.hidden = true;
+    });
+
+    boton.addEventListener("click", async () => {
+      if (!aviso) {
+        avisar(ios ? "Tap Share, then “Add to Home Screen”" : "Use your browser menu to install");
+        return;
+      }
+      try {
+        await aviso.prompt();
+        const { outcome } = await aviso.userChoice;
+        if (outcome === "accepted") seccion.hidden = true;
+      } catch {
+        avisar("Use your browser menu to install");
+      }
+      // Cada aviso solo se puede lanzar una vez.
+      aviso = null;
+    });
+  }
+</script>

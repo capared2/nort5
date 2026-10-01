@@ -30,6 +30,38 @@ const [indice, resultados] = await Promise.all([
   cache={600}
   noindex
 >
+  {/* En móvil la cabecera no lleva buscador: esta es la pantalla de buscar,
+       con la caja arriba y el teclado a mano. A 16px para que iOS no amplíe
+       la página al enfocarla. */}
+  <form action="/search" method="get" role="search" class="mb-6 sm:hidden">
+    <label for="q-pagina" class="sr-only">Search movies</label>
+    <div class="relative">
+      <svg
+        class="pointer-events-none absolute left-3.5 top-1/2 size-5 -translate-y-1/2 stroke-[var(--color-tinta-tenue)]"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke-width="2"
+        stroke-linecap="round"
+        aria-hidden="true"
+      >
+        <circle cx="11" cy="11" r="7"></circle>
+        <path d="M20 20l-3.5-3.5"></path>
+      </svg>
+      <input
+        id="q-pagina"
+        name="q"
+        type="search"
+        value={consulta}
+        placeholder="Search for a movie…"
+        autocomplete="off"
+        enterkeyhint="search"
+        autofocus={!consulta}
+        data-buscar-pagina
+        class="w-full rounded-xl border border-[var(--color-linea)] bg-[var(--color-lienzo)] py-3 pl-11 pr-4 text-base outline-none placeholder:text-[var(--color-tinta-tenue)] focus:border-[var(--color-marca)]"
+      />
+    </div>
+  </form>
+
   <header class="mb-6">
     <p class="text-xs font-bold uppercase tracking-[0.18em] text-[var(--color-marca)]">Search</p>
     <h1 class="mt-1 font-display text-4xl font-extrabold tracking-tight">
@@ -39,7 +71,7 @@ const [indice, resultados] = await Promise.all([
       {
         consulta
           ? `${numero(resultados.length)} ${resultados.length === 1 ? "result" : "results"} by title`
-          : "Type a movie title in the search box above."
+          : "Type a movie title in the search box."
       }
     </p>
   </header>
@@ -59,7 +91,7 @@ const [indice, resultados] = await Promise.all([
             <li>
               <a
                 href={enlacePelicula(resultado.id)}
-                class="flex items-center gap-4 px-4 py-3 hover:bg-[var(--color-lienzo-alt)]"
+                class="flex items-center gap-4 px-4 py-3 hover:bg-[var(--color-lienzo-alt)] active:bg-[var(--color-lienzo-alt)]"
               >
                 <span class="min-w-0 flex-1">
                   <strong class="block truncate font-display text-lg font-semibold">
@@ -90,7 +122,7 @@ const [indice, resultados] = await Promise.all([
         {(indice?.genres ?? []).slice(0, 12).map((genero) => (
           <a
             href={enlaceGenero(genero.genre)}
-            class="rounded-full border border-[var(--color-linea)] px-4 py-2 text-sm font-semibold hover:border-[var(--color-marca)] hover:text-[var(--color-marca)]"
+            class="pulsable rounded-full border border-[var(--color-linea)] px-4 py-2 text-sm font-semibold hover:border-[var(--color-marca)] hover:text-[var(--color-marca)]"
           >
             {genero.name || nombreGenero(genero.genre)}
           </a>

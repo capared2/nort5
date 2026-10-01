@@ -81,6 +81,9 @@ const descripcion =
   canonical={`/movie/${pelicula.id}`}
   indice={indice}
   generoActivo={claveGenero(generoPrincipal)}
+  atras={enlaceGenero(claveGenero(generoPrincipal))}
+  tituloBarra={pelicula.title}
+  barraGeneros={false}
   imagen={imagenCompartir}
   tipo="video.movie"
   estreno={pelicula.release_date}
@@ -90,7 +93,7 @@ const descripcion =
   jsonLd={grafoPelicula(pelicula)}
 >
   <article>
-    <div class="relative isolate -mx-5 overflow-hidden px-5 py-8 sm:rounded-2xl sm:px-8">
+    <div class="relative isolate -mx-5 -mt-6 overflow-hidden px-5 py-8 sm:mt-0 sm:rounded-2xl sm:px-8">
       {
         fondo && (
           <img

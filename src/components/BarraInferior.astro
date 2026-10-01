@@ -1,0 +1,116 @@
+---
+/** Las secciones que tienen pestaña propia. */
+export type Seccion = "inicio" | "top" | "generos" | "buscar";
+
+interface Props {
+  seccion?: Seccion;
+}
+
+const { seccion } = Astro.props;
+
+// Los trazos van a 24px, el tamaño de icono de las barras de las apps.
+const pestanas: { seccion: Seccion; href: string; nombre: string; icono: string }[] = [
+  {
+    seccion: "inicio",
+    href: "/",
+    nombre: "Home",
+    icono: "M4 10.2 12 4l8 6.2V19a1 1 0 01-1 1h-4.5v-5.5h-5V20H5a1 1 0 01-1-1z",
+  },
+  {
+    seccion: "top",
+    href: "/top",
+    nombre: "Top rated",
+    icono:
+      "M12 3.8l2.5 5.1 5.6.8-4 4 .9 5.6-5-2.7-5 2.7.9-5.6-4-4 5.6-.8z",
+  },
+  {
+    seccion: "generos",
+    href: "/genres",
+    nombre: "Genres",
+    icono:
+      "M5.5 4h4a1.5 1.5 0 011.5 1.5v4A1.5 1.5 0 019.5 11h-4A1.5 1.5 0 014 9.5v-4A1.5 1.5 0 015.5 4zm9 0h4A1.5 1.5 0 0120 5.5v4a1.5 1.5 0 01-1.5 1.5h-4A1.5 1.5 0 0113 9.5v-4A1.5 1.5 0 0114.5 4zm-9 9h4a1.5 1.5 0 011.5 1.5v4A1.5 1.5 0 019.5 20h-4A1.5 1.5 0 014 18.5v-4A1.5 1.5 0 015.5 13zm9 0h4a1.5 1.5 0 011.5 1.5v4a1.5 1.5 0 01-1.5 1.5h-4a1.5 1.5 0 01-1.5-1.5v-4a1.5 1.5 0 011.5-1.5z",
+  },
+  {
+    seccion: "buscar",
+    href: "/search",
+    nombre: "Search",
+    icono: "M10.8 4.5a6.3 6.3 0 110 12.6 6.3 6.3 0 010-12.6zM20 20l-4.6-4.6",
+  },
+];
+---
+
+{/* La navegación de una app de móvil: siempre a mano del pulgar. En pantallas
+     anchas no hace falta, la cabecera ya lo tiene todo. */}
+<nav
+  aria-label="Main"
+  data-pestanas
+  class="pestanas fixed inset-x-0 bottom-0 z-40 select-none border-t border-[var(--color-linea)] bg-[var(--color-fondo)]/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-lg sm:hidden"
+>
+  <ul class="mx-auto grid h-16 max-w-lg grid-cols-5">
+    {
+      pestanas.map((pestana) => {
+        const activa = pestana.seccion === seccion;
+        return (
+          <li>
+            <a
+              href={pestana.href}
+              aria-current={activa ? "page" : undefined}
+              class:list={[
+                "pulsable flex h-full flex-col items-center justify-center gap-1 text-[0.68rem] font-semibold",
+                activa ? "text-[var(--color-tinta)]" : "text-[var(--color-tinta-tenue)]",
+              ]}
+            >
+              <span
+                class:list={[
+                  "grid h-8 w-14 place-items-center rounded-full transition-colors",
+                  activa && "bg-[var(--color-marca-tenue)] text-[var(--color-marca)]",
+                ]}
+              >
+                <svg
+                  class="size-6"
+                  viewBox="0 0 24 24"
+                  fill={activa && pestana.seccion !== "buscar" ? "currentColor" : "none"}
+                  stroke="currentColor"
+                  stroke-width={activa ? 2.2 : 1.8}
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d={pestana.icono} />
+                </svg>
+              </span>
+              {pestana.nombre}
+            </a>
+          </li>
+        );
+      })
+    }
+    <li>
+      <button
+        type="button"
+        popovertarget="menu"
+        aria-haspopup="dialog"
+        class="pulsable flex h-full w-full flex-col items-center justify-center gap-1 text-[0.68rem] font-semibold text-[var(--color-tinta-tenue)]"
+      >
+        <span class="grid h-8 w-14 place-items-center rounded-full">
+          <svg class="size-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+            <path d="M4.5 7h15M4.5 12h15M4.5 17h15"></path>
+          </svg>
+        </span>
+        Menu
+      </button>
+    </li>
+  </ul>
+</nav>
+
+<script>
+  // Tocar la pestaña en la que ya estás sube arriba del todo, como en las
+  // apps; en la de buscar, además, deja el cursor listo para escribir.
+  document.querySelectorAll<HTMLAnchorElement>('[data-pestanas] a[aria-current="page"]').forEach((pestana) => {
+    pestana.addEventListener("click", (evento) => {
+      evento.preventDefault();
+      scrollTo({ top: 0, behavior: "smooth" });
+      document.querySelector<HTMLInputElement>("[data-buscar-pagina]")?.focus();
+    });
+  });
+</script>

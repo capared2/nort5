@@ -6,6 +6,8 @@ import Seo from "../components/Seo.astro";
 import Anuncios from "../components/Anuncios.astro";
 import Banner from "../components/Banner.astro";
 import Analitica from "../components/Analitica.astro";
+import BarraInferior, { type Seccion } from "../components/BarraInferior.astro";
+import Menu from "../components/Menu.astro";
 import type { Indice } from "../lib/types";
 import { SITIO } from "../lib/sitio";
 
@@ -29,6 +31,14 @@ interface Props {
   siguiente?: string | null;
   /** El contenido llega hasta el borde: para las fichas con cartel a sangre. */
   ancho?: boolean;
+  /**
+   * Página de detalle. En móvil la cabecera pone un botón de volver, que sin
+   * historial lleva a esta ruta, y el título corto de la página.
+   */
+  atras?: string;
+  tituloBarra?: string;
+  /** En móvil, enseñar la barra de géneros bajo la cabecera. */
+  barraGeneros?: boolean;
 }
 
 const {
@@ -39,8 +49,24 @@ const {
   cache = 3600,
   generoActivo,
   ancho = false,
+  atras,
+  tituloBarra,
+  barraGeneros = true,
   ...seo
 } = Astro.props;
+
+// La pestaña de abajo que se enciende. Las fichas no tienen pestaña propia.
+const ruta = Astro.url.pathname.replace(/\/+$/, "") || "/";
+const seccion: Seccion | undefined =
+  ruta === "/"
+    ? "inicio"
+    : ruta === "/top"
+      ? "top"
+      : ruta === "/genres" || ruta.startsWith("/genre/")
+        ? "generos"
+        : ruta === "/search"
+          ? "buscar"
+          : undefined;
 
 // El catálogo se rehace cada pocas horas: servir desde el edge y revalidar en
 // segundo plano mantiene el sitio rápido sin quedarse obsoleto.
@@ -54,7 +80,9 @@ Astro.response.headers.set(
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    {/* `viewport-fit=cover` lleva la página bajo la muesca y la barra de
+         inicio del iPhone; las barras fijas se apartan con los safe-area. */}
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <Seo titulo={titulo} descripcion={descripcion} canonical={canonical} {...seo} />
 
     <Analitica />
@@ -72,11 +100,27 @@ Astro.response.headers.set(
       rel="stylesheet"
     />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="apple-touch-icon" href="/favicon.svg" />
+    {/* iOS no acepta SVG en la pantalla de inicio. */}
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="theme-color" content="#0b0d12" />
 
+    {/* Instalable como app: a pantalla completa, con su icono y sin la barra
+        del navegador. La barra de estado de iOS va en negro y no translúcida:
+        con el tema claro, un reloj blanco sobre fondo blanco no se vería. */}
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="application-name" content={SITIO.nombre} />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content={SITIO.nombre} />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="format-detection" content="telephone=no" />
+
     {/* Inline a propósito: el tema tiene que aplicarse antes de pintar, o hay
-        destello. Sin comentarios dentro, que este guion sí viaja al navegador. */}
+        destello, y el sentido de la transición entre páginas se decide en
+        `pagereveal`, que llega antes del primer pintado: volver atrás desliza
+        hacia la derecha y abrir una ficha, hacia la izquierda (ver
+        global.css). Sin comentarios dentro, que este guion sí viaja al
+        navegador. */}
     <script is:inline>
       addEventListener(
         "error",
@@ -86,7 +130,29 @@ Astro.response.headers.set(
         true,
       );
 
-      document.documentElement.classList.toggle("claro", localStorage.getItem("tema") === "claro");
+      try {
+        if (localStorage.getItem("tema") === "claro") {
+          document.documentElement.classList.add("claro");
+          document.querySelector('meta[name="theme-color"]').setAttribute("content", "#f5f6f8");
+        }
+      } catch (fallo) {}
+
+      addEventListener("pagereveal", (evento) => {
+        var activacion = window.navigation && navigation.activation;
+        if (!evento.viewTransition || !activacion || !activacion.entry) return;
+        var desde = activacion.from;
+        if (activacion.navigationType === "traverse" && desde && desde.index > activacion.entry.index) {
+          evento.viewTransition.types.add("atras");
+        } else if (activacion.navigationType === "push" && !/^\/(top|genres|search)?\/?$/.test(location.pathname)) {
+          evento.viewTransition.types.add("adelante");
+        }
+      });
+
+      if ("serviceWorker" in navigator) {
+        addEventListener("load", function () {
+          navigator.serviceWorker.register("/sw.js").catch(function () {});
+        });
+      }
     </script>
   </head>
   <body class="flex min-h-screen flex-col">
@@ -97,13 +163,30 @@ Astro.response.headers.set(
       Skip to content
     </a>
 
-    <Cabecera indice={indice} generoActivo={generoActivo} />
+    <Cabecera
+      indice={indice}
+      generoActivo={generoActivo}
+      atras={atras}
+      tituloBarra={tituloBarra}
+      barraGeneros={barraGeneros}
+    />
 
-    <main id="contenido" class:list={["w-full flex-1", ancho ? "" : "contenedor py-8"]}>
+    <main id="contenido" class:list={["w-full flex-1", ancho ? "" : "contenedor py-6 sm:py-8"]}>
       <slot />
     </main>
 
     <Pie indice={indice} />
+
+    <BarraInferior seccion={seccion} />
+    <Menu indice={indice} />
+
+    {/* El indicador de «tirar para recargar». Solo se usa instalada como app,
+        donde no hay botón de recargar del navegador (ver global.css). */}
+    <div class="recarga" data-recarga aria-hidden="true">
+      <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+        <path d="M20 12a8 8 0 11-2.3-5.7M20 4v4.5h-4.5"></path>
+      </svg>
+    </div>
 
     {/* Los rascacielos van fuera del flujo, en el margen que sobra a los
         lados del contenedor: así no empujan el contenido ni cambian el
@@ -118,3 +201,62 @@ Astro.response.headers.set(
     <Anuncios />
   </body>
 </html>
+
+<script>
+  // Tirar hacia abajo desde arriba del todo recarga la página. Solo instalada
+  // como app: en el navegador ya lo hace él, y duplicarlo sería un estorbo.
+  const indicador = document.querySelector<HTMLElement>("[data-recarga]");
+  const instalada =
+    matchMedia("(display-mode: standalone)").matches ||
+    (navigator as Navigator & { standalone?: boolean }).standalone === true;
+
+  if (indicador && instalada) {
+    const UMBRAL = 70;
+    let inicio: number | null = null;
+    let tiron = 0;
+
+    const reponer = () => {
+      indicador.style.removeProperty("transform");
+      indicador.style.removeProperty("opacity");
+    };
+
+    addEventListener(
+      "touchstart",
+      (evento) => {
+        const libre = scrollY <= 0 && evento.touches.length === 1 && !document.querySelector(":popover-open");
+        inicio = libre ? evento.touches[0].clientY : null;
+        tiron = 0;
+      },
+      { passive: true },
+    );
+
+    addEventListener(
+      "touchmove",
+      (evento) => {
+        if (inicio === null) return;
+        if (scrollY > 0) {
+          inicio = null;
+          reponer();
+          return;
+        }
+        // La resistencia de un muelle: cuanto más se tira, menos avanza.
+        tiron = Math.max(0, evento.touches[0].clientY - inicio) * 0.5;
+        const recorrido = Math.min(tiron, UMBRAL * 1.4);
+        indicador.style.transform = `translateY(${recorrido}px) rotate(${recorrido * 4}deg)`;
+        indicador.style.opacity = String(Math.min(1, tiron / UMBRAL));
+      },
+      { passive: true },
+    );
+
+    addEventListener("touchend", () => {
+      if (inicio === null) return;
+      inicio = null;
+      if (tiron >= UMBRAL) {
+        indicador.classList.add("girando");
+        location.reload();
+      } else {
+        reponer();
+      }
+    });
+  }
+</script>

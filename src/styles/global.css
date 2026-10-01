@@ -42,11 +42,45 @@
     --color-tinta-tenue: #78828f;
   }
 
+  /* Un toque tiene que sentirse como en una app: sin el recuadro gris que
+     pinta el navegador al pulsar, sin esperar a ver si era un doble toque y
+     sin que el texto cambie de tamaño al girar el móvil. El zoom con dos
+     dedos sigue funcionando. */
+  html {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    touch-action: manipulation;
+  }
+
   body {
     background-color: var(--color-fondo);
     color: var(--color-tinta);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
+  }
+
+  /* Hueco para la barra de pestañas fija de abajo, más la zona de la barra
+     de inicio del iPhone. */
+  @media (width < 40rem) {
+    body {
+      padding-bottom: calc(4rem + env(safe-area-inset-bottom));
+    }
+  }
+
+  /* Instalada como app: los enlaces y carátulas no sacan el menú de «abrir en
+     pestaña nueva» al mantener el dedo, y tirar desde arriba lo gestiona la
+     página (ver Base.astro) en vez del navegador. */
+  @media (display-mode: standalone) {
+    html {
+      overscroll-behavior-y: contain;
+    }
+
+    a,
+    img {
+      -webkit-touch-callout: none;
+      -webkit-user-drag: none;
+    }
   }
 
   ::selection {
@@ -63,7 +97,24 @@
 @utility contenedor {
   margin-inline: auto;
   max-width: 82rem;
-  padding-inline: 1.25rem;
+  /* En horizontal la muesca del iPhone se come el borde de la pantalla. */
+  padding-left: max(1.25rem, env(safe-area-inset-left));
+  padding-right: max(1.25rem, env(safe-area-inset-right));
+}
+
+/* Lo que se toca encoge un poco al pulsarlo: la respuesta que da una app sin
+   esperar a que cargue la página siguiente. Solo en pantallas táctiles; con
+   ratón ya están los estados de hover. */
+@utility pulsable {
+  transition: transform 140ms ease;
+  -webkit-user-select: none;
+  user-select: none;
+
+  @media (hover: none) {
+    &:active {
+      transform: scale(0.95);
+    }
+  }
 }
 
 /* Recorte de líneas para títulos y sinopsis. */
@@ -79,6 +130,9 @@
   display: flex;
   gap: 1rem;
   overflow-x: auto;
+  /* Llegar al final de la fila no arrastra la página ni dispara el gesto de
+     volver atrás del navegador. */
+  overscroll-behavior-x: contain;
   scroll-snap-type: x mandatory;
   scroll-padding-inline: 1.25rem;
   scrollbar-width: none;
@@ -86,6 +140,7 @@
 }
 
 @utility carrusel-oculto {
+  overscroll-behavior-x: contain;
   scrollbar-width: none;
 }
 
@@ -139,5 +194,234 @@
 
   .rail-derecha {
     right: max(0.5rem, calc((100vw - 82rem) / 2 - 176px));
+  }
+}
+
+/* ------------------------------------------------------------------------
+   Piezas de app en el móvil
+   ------------------------------------------------------------------------ */
+
+/* La cabecera se aparta al bajar (ver Cabecera.astro). */
+@media (width < 40rem) {
+  .cabecera {
+    transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .cabecera[data-oculta] {
+    transform: translateY(-100%);
+  }
+}
+
+/* La hoja del menú (ver Menu.astro). Es un popover: el navegador lo pinta por
+   encima de todo y lo cierra al tocar fuera. Los estilos de serie lo centran
+   en la pantalla, así que se fija todo aquí. */
+.hoja {
+  position: fixed;
+  inset: auto 0 0 0;
+  margin: 0 auto;
+  width: 100%;
+  max-width: 40rem;
+  max-height: 88dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: 0;
+  border-top: 1px solid var(--color-linea);
+  border-radius: 1.25rem 1.25rem 0 0;
+  background: var(--color-fondo);
+  color: var(--color-tinta);
+  padding: 0 1.25rem calc(1.5rem + env(safe-area-inset-bottom));
+  box-shadow: 0 -12px 40px rgb(0 0 0 / 0.35);
+  transform: translateY(100%);
+  transition:
+    transform 0.34s cubic-bezier(0.32, 0.72, 0, 1),
+    overlay 0.34s allow-discrete,
+    display 0.34s allow-discrete;
+}
+
+.hoja:popover-open {
+  transform: none;
+}
+
+.hoja::backdrop {
+  background: rgb(0 0 0 / 0);
+  transition:
+    background-color 0.34s,
+    overlay 0.34s allow-discrete,
+    display 0.34s allow-discrete;
+}
+
+.hoja:popover-open::backdrop {
+  background: rgb(0 0 0 / 0.55);
+}
+
+@starting-style {
+  .hoja:popover-open {
+    transform: translateY(100%);
+  }
+
+  .hoja:popover-open::backdrop {
+    background: rgb(0 0 0 / 0);
+  }
+}
+
+/* Con la hoja abierta, lo de detrás no se mueve. */
+html:has(.hoja:popover-open) {
+  overflow: hidden;
+}
+
+.etiqueta-menu {
+  margin-bottom: 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-tinta-tenue);
+}
+
+/* El aviso breve que sube desde abajo (ver src/lib/aviso.ts). */
+.aviso {
+  position: fixed;
+  left: 50%;
+  bottom: calc(5rem + env(safe-area-inset-bottom));
+  z-index: 60;
+  max-width: calc(100vw - 2.5rem);
+  border-radius: 9999px;
+  background: var(--color-tinta);
+  color: var(--color-fondo);
+  padding: 0.6rem 1.1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, 1rem);
+  transition:
+    opacity 0.2s,
+    transform 0.2s;
+}
+
+.aviso.visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* El indicador de «tirar para recargar» (ver Base.astro). Espera escondido
+   encima de la pantalla y baja con el dedo. */
+.recarga {
+  position: fixed;
+  top: calc(env(safe-area-inset-top) - 2.75rem);
+  left: 50%;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  margin-left: -1.25rem;
+  border-radius: 9999px;
+  border: 1px solid var(--color-linea);
+  background: var(--color-lienzo);
+  color: var(--color-marca);
+  box-shadow: 0 4px 16px rgb(0 0 0 / 0.3);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.recarga.girando svg {
+  animation: girar 0.7s linear infinite;
+}
+
+@keyframes girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ------------------------------------------------------------------------
+   Transiciones entre páginas
+   ------------------------------------------------------------------------
+   El navegador funde una página con la siguiente en vez de dejar la pantalla
+   en blanco. La cabecera y las pestañas llevan nombre propio, así que se
+   quedan quietas mientras el contenido cambia, como en una app. En el móvil,
+   abrir una ficha la trae desde la derecha y volver la devuelve por donde
+   vino (el sentido lo decide Base.astro). Donde no hay soporte, se navega
+   como siempre. */
+@view-transition {
+  navigation: auto;
+}
+
+.cabecera {
+  view-transition-name: cabecera;
+}
+
+.pestanas {
+  view-transition-name: pestanas;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.22s;
+}
+
+@media (width < 40rem) {
+  html:active-view-transition-type(adelante) {
+    &::view-transition-old(root) {
+      animation: 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) both salir-izquierda;
+    }
+
+    &::view-transition-new(root) {
+      animation: 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) both entrar-derecha;
+    }
+  }
+
+  html:active-view-transition-type(atras) {
+    /* La que se va pasa por encima de la que vuelve, como una carta. */
+    &::view-transition-old(root) {
+      z-index: 1;
+      animation: 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) both salir-derecha;
+    }
+
+    &::view-transition-new(root) {
+      animation: 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) both entrar-izquierda;
+    }
+  }
+}
+
+@keyframes entrar-derecha {
+  from {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes salir-izquierda {
+  to {
+    transform: translateX(-25%);
+    opacity: 0.6;
+  }
+}
+
+@keyframes entrar-izquierda {
+  from {
+    transform: translateX(-25%);
+    opacity: 0.6;
+  }
+}
+
+@keyframes salir-derecha {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+
+  .cabecera,
+  .hoja,
+  .hoja::backdrop,
+  .pulsable {
+    transition: none;
   }
 }
