@@ -1,0 +1,44 @@
+---
+import { ANUNCIOS_ACTIVOS, ENLACE_PATROCINADO } from "../lib/anuncios";
+
+interface Props {
+  clase?: string;
+}
+
+const { clase = "" } = Astro.props;
+---
+
+{/* El enlace directo de la red, ofrecido sin trampas: dice que es un anuncio,
+     no se disfraza de película ni de botón de «ver ahora», y abre en otra
+     pestaña para no sacar a nadie de la ficha. `sponsored` le dice a Google
+     que es publicidad y no un enlace que recomendemos. */}
+{
+  ANUNCIOS_ACTIVOS && (
+    <aside class:list={["mx-auto w-full max-w-xl", clase]} aria-label="Advertisement">
+      <a
+        href={ENLACE_PATROCINADO}
+        target="_blank"
+        rel="sponsored nofollow noopener"
+        class="pulsable group flex items-center gap-3.5 rounded-xl border border-[var(--color-linea)] bg-[var(--color-lienzo)] p-3.5 hover:border-[var(--color-marca)]"
+      >
+        <span class="grid size-10 shrink-0 place-items-center rounded-lg bg-[var(--color-lienzo-alt)] text-[var(--color-marca)]">
+          <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 3.5l2.2 5.3 5.3 2.2-5.3 2.2L12 18.5l-2.2-5.3L4.5 11l5.3-2.2z"></path>
+          </svg>
+        </span>
+        <span class="min-w-0 flex-1">
+          <span class="block text-[0.6rem] uppercase tracking-widest text-[var(--color-tinta-tenue)]">
+            Sponsored
+          </span>
+          <strong class="block truncate text-sm font-semibold group-hover:text-[var(--color-marca)]">
+            Check out our sponsor
+          </strong>
+        </span>
+        <svg class="size-4 shrink-0 text-[var(--color-tinta-tenue)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M8 16 16 8M9 8h7v7"></path>
+        </svg>
+        <span class="sr-only">(opens in a new tab)</span>
+      </a>
+    </aside>
+  )
+}

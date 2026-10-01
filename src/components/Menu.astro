@@ -2,6 +2,7 @@
 import type { Indice } from "../lib/types";
 import { colorGenero, enlaceGenero, nombreGenero, numero } from "../lib/format";
 import { SITIO } from "../lib/sitio";
+import { ANUNCIOS_ACTIVOS, ENLACE_PATROCINADO } from "../lib/anuncios";
 import Logo from "./Logo.astro";
 
 interface Props {
@@ -128,6 +129,27 @@ const generos = [...(indice?.genres ?? [])]
           New releases feed (RSS) <span aria-hidden="true" class="text-[var(--color-tinta-tenue)]">›</span>
         </a>
       </li>
+      {
+        ANUNCIOS_ACTIVOS && (
+          <li>
+            <a
+              href={ENLACE_PATROCINADO}
+              target="_blank"
+              rel="sponsored nofollow noopener"
+              class="flex items-center gap-2 px-4 py-3 font-semibold active:bg-[var(--color-lienzo-alt)]"
+            >
+              From our sponsor
+              <span class="rounded bg-[var(--color-lienzo-alt)] px-1.5 py-0.5 text-[0.6rem] uppercase tracking-widest text-[var(--color-tinta-tenue)]">
+                Ad
+              </span>
+              <svg class="ml-auto size-4 text-[var(--color-tinta-tenue)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M8 16 16 8M9 8h7v7"></path>
+              </svg>
+              <span class="sr-only">(opens in a new tab)</span>
+            </a>
+          </li>
+        )
+      }
     </ul>
     <p class="mt-4 text-xs leading-relaxed text-[var(--color-tinta-tenue)]">
       {indice && `${numero(indice.total_titles)} movies across ${indice.total_genres} genres. `}

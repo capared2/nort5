@@ -55,7 +55,26 @@ export const NATIVO = {
  */
 export const SUELTO = "https://pl31044373.profitableratecpmnetwork.com/04/62/eb/0462ebad51ad5a9268eae6656047389c.js";
 
+/**
+ * Segunda unidad suelta. Se coloca sola, como la anterior, pero se pide tarde
+ * a propósito: con la página ya cargada, cuando la visita ha empezado a
+ * moverse por ella (o han pasado unos segundos) y el navegador está libre.
+ * Así no compite con el contenido ni aparece nada más abrir.
+ */
+export const DIFERIDO = "https://pl31608868.profitableratecpmnetwork.com/b8/67/bf/b867bfb981b49a3d0d5b10dce27d9361.js";
+
+/**
+ * Enlace directo de la red: no pinta nada por sí mismo, es una dirección a
+ * la que se manda a quien quiera ir. Se ofrece como enlace patrocinado,
+ * rotulado como tal y sin hacerse pasar por contenido (ver
+ * EnlacePatrocinado.astro).
+ */
+export const ENLACE_PATROCINADO = "https://www.profitableratecpmnetwork.com/gtkedff42w?key=9c9965c4cd2cca04f23994109412006f";
+
 export const BASE_INVOKE = "https://www.highrevenueformat.com";
+
+/** Los anuncios se apagan del todo con la variable de entorno ANUNCIOS=0. */
+export const ANUNCIOS_ACTIVOS = import.meta.env.ANUNCIOS !== "0";
 
 /** Altura que se reserva antes de cargar, para que nada salte al aparecer. */
 export function altoReservado(hueco: string): number {

@@ -1,5 +1,5 @@
 ---
-import { BASE_INVOKE, HUECOS, NATIVO, SUELTO } from "../lib/anuncios";
+import { ANUNCIOS_ACTIVOS, BASE_INVOKE, DIFERIDO, HUECOS, NATIVO, SUELTO } from "../lib/anuncios";
 
 /**
  * Carga los banners que haya declarado la página.
@@ -15,7 +15,6 @@ import { BASE_INVOKE, HUECOS, NATIVO, SUELTO } from "../lib/anuncios";
  *
  * Se apagan del todo con la variable de entorno ANUNCIOS=0.
  */
-const activos = import.meta.env.ANUNCIOS !== "0";
 
 const codigo = `
 (function () {
@@ -23,6 +22,15 @@ const codigo = `
   var BASE = ${JSON.stringify(BASE_INVOKE)};
   var NATIVO = ${JSON.stringify(NATIVO)};
   var SUELTO = ${JSON.stringify(SUELTO)};
+  var DIFERIDO = ${JSON.stringify(DIFERIDO)};
+
+  function cargar(src) {
+    var s = document.createElement("script");
+    s.src = src;
+    s.async = true;
+    s.setAttribute("data-cfasync", "false");
+    document.body.appendChild(s);
+  }
 
   function unidadPara(hueco) {
     var variantes = HUECOS[hueco] || [];
@@ -67,21 +75,34 @@ const codigo = `
   function pintarNativo(caja) {
     if (caja.dataset.pintado) return;
     caja.dataset.pintado = "1";
-    var s = document.createElement("script");
-    s.src = NATIVO.script;
-    s.async = true;
-    s.setAttribute("data-cfasync", "false");
-    document.body.appendChild(s);
+    cargar(NATIVO.script);
   }
 
   // La unidad suelta no tiene hueco en el HTML: se pide una vez y la red la
   // coloca por su cuenta. Como no ocupa sitio, no hace falta esperar al scroll.
   function pintarSuelto() {
-    var s = document.createElement("script");
-    s.src = SUELTO;
-    s.async = true;
-    s.setAttribute("data-cfasync", "false");
-    document.body.appendChild(s);
+    cargar(SUELTO);
+  }
+
+  // La otra unidad suelta espera su turno: a que la página termine de cargar,
+  // a que la visita baje o toque algo (o pasen unos segundos leyendo) y a que
+  // el navegador quede libre. Abrir una página nunca la dispara de golpe.
+  function pintarDiferido() {
+    var eventos = ["scroll", "pointerdown", "keydown"];
+    var pedida = false;
+    var reloj;
+
+    function pedir() {
+      if (pedida) return;
+      pedida = true;
+      clearTimeout(reloj);
+      eventos.forEach(function (nombre) { removeEventListener(nombre, pedir); });
+      var cuando = window.requestIdleCallback || function (hacer) { setTimeout(hacer, 200); };
+      cuando(function () { cargar(DIFERIDO); }, { timeout: 3000 });
+    }
+
+    reloj = setTimeout(pedir, 8000);
+    eventos.forEach(function (nombre) { addEventListener(nombre, pedir, { passive: true }); });
   }
 
   function arrancar() {
@@ -89,6 +110,9 @@ const codigo = `
     var nativos = [].slice.call(document.querySelectorAll("[data-anuncio-nativo]"));
 
     pintarSuelto();
+
+    if (document.readyState === "complete") pintarDiferido();
+    else addEventListener("load", pintarDiferido, { once: true });
 
     if (!window.IntersectionObserver) {
       cajas.forEach(pintar);
@@ -121,4 +145,4 @@ const codigo = `
 `;
 ---
 
-{activos && <script is:inline data-anuncios set:html={codigo} />}
+{ANUNCIOS_ACTIVOS && <script is:inline data-anuncios set:html={codigo} />}

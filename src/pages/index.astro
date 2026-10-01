@@ -6,6 +6,7 @@ import Cartel from "../components/Cartel.astro";
 import Vacio from "../components/Vacio.astro";
 import Banner from "../components/Banner.astro";
 import BannerNativo from "../components/BannerNativo.astro";
+import EnlacePatrocinado from "../components/EnlacePatrocinado.astro";
 import { obtenerIndice, obtenerPortada } from "../lib/data";
 import { caratula, colorGenero, duracion, enlaceGenero, enlacePelicula, nombreGenero, numero } from "../lib/format";
 import { SITIO } from "../lib/sitio";
@@ -126,6 +127,8 @@ const cartelGrande = caratula(destacada?.poster, 600);
         <Banner hueco="horizontal" clase="mt-8" />
 
         <Fila titulo="Classics that hold up" peliculas={portada?.clasicos ?? []} />
+
+        <EnlacePatrocinado clase="mt-10" />
 
         {generos.length > 0 && (
           <section class="mt-12">
